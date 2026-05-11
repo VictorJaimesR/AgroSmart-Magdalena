@@ -1,0 +1,59 @@
+# ==============================================================================
+# AgroSmart Magdalena — Configuración Principal
+# ==============================================================================
+
+spring:
+  application:
+    name: agro-service
+
+  # --- Base de datos ---
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db_agro
+    username: postgres
+    password: 123456
+    driver-class-name: org.postgresql.Driver
+
+  # --- JPA / Hibernate ---
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: America/Bogota
+
+  # --- Jackson ---
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: America/Bogota
+
+# --- Servidor ---
+server:
+  port: 8082
+  servlet:
+    context-path: /api
+
+# --- JWT ---
+app:
+  jwt:
+    secret: s3cr3tK3yAgr0Sm4rtM4gd4l3n4Pr0duct0r3s2024xYz!@#
+    expiration-ms: 86400000  # 24 horas
+
+# --- OpenAPI / Swagger ---
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: method
+
+# --- Logging ---
+logging:
+  level:
+    com.agrosmart.magdalena: INFO
+    org.springframework.security: WARN

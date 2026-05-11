@@ -1,0 +1,26 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db_usuarios
+    username: postgres
+    password: 123456
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  agro-service:
+    url: http://localhost:8082
+  jwt:
+    secret: s3cr3tK3yAgr0Sm4rtM4gd4l3n4Pr0duct0r3s2024xYz!@#
+    expiration-ms: 86400000

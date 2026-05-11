@@ -1,0 +1,16 @@
+# ==============================================================================
+# AgroSmart Magdalena — Perfil de Desarrollo
+# ==============================================================================
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  # Datos de prueba se cargan automáticamente via DataSeeder
+
+logging:
+  level:
+    com.agrosmart.magdalena: DEBUG
+    org.springframework.security: DEBUG

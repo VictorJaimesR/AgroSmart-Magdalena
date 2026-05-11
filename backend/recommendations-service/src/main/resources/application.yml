@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: recommendations-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db_recomendaciones
+    username: postgres
+    password: 123456
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        time_zone: America/Bogota
+
+server:
+  port: 8083
+  servlet:
+    context-path: /api
+
+app:
+  jwt:
+    secret: s3cr3tK3yAgr0Sm4rtM4gd4l3n4Pr0duct0r3s2024xYz!@#
+  agro-service:
+    url: http://localhost:8082

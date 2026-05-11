@@ -1,0 +1,25 @@
+# Directorios de dependencias
+node_modules/
+dist/
+build/
+.env
+
+# Archivos de Java / Maven / Spring Boot
+target/
+*.jar
+*.war
+*.ear
+*.class
+.mvn/
+!mvnw
+!mvnw.cmd
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.log
+
+# Archivos temporales de SO
+.DS_Store
+Thumbs.db

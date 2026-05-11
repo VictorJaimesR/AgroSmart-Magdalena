@@ -1,0 +1,301 @@
+﻿Plataforma Digital de Agricultura Inteligente para Pequeños Productores del Magdalena
+Programa:
+ Ingeniería de Sistemas
+Periodo académico: 2026-1
+Curso: 
+Arquitectura de Software
+Créditos: 4
+Estudiantes 
+2019214007 – Juan Narvaez
+2020214022 – Maria Mercado
+2022114081 – Javi Rivera
+2022114106 -- Victor James
+Correcciones 
+ANALISIS 
+Restricciones técnicas
+Al presentarse intermitencia de internet en la zona rural donde se realizan los cultivos, se opta por implementar un almacenamiento local y sincronización diferida para no afectar en las funcionalidades del programa, aun así, hay funcionalidades externas como la del clima que se verán afectadas. Además, debe ser compatible con dispositivos de gama baja lo que nos obliga a diseñar interfaces que sean ligeras pero eficientes.
+Restricciones económicas 
+El presupuesto limitado hace que se requieran tecnologías de bajo costo o de código abierto, lo que puede aumentar la dificultad de implementación y mantenimiento. También puede afectar la escalabilidad del sistema y limitar el rendimiento y la disponibilidad.
+Restricciones sociales 
+El bajo nivel de alfabetización digital de los usuarios hace que optemos por interfaces simples y fáciles de usar, ya que si resulta difícil de usar puede afectar la adopción del sistema. Es por esto que las funcionalidades deben ser claras y útiles para garantizar su uso.
+Restricciones normativas 
+Para cumplir con las normativas de protección de datos se debe implementar mecanismos de seguridad, control de acceso y gestión de roles. 
+Restricciones éticas 
+El sistema no debería generar recomendaciones incorrectas porque pueden afectar la producción o el entorno, por lo que debe funcionar como apoyo a la decisión y no como el reemplazo del criterio humano. Se requiere validación técnica y transparencia en la información presentada
+Requerimientos Funcionales (RF) Detallados
+UC1: Gestionar Cultivos
+RF-01:
+ El sistema debe proporcionar al 
+Agricultor
+ un módulo de registro técnico avanzado para sus cultivos, permitiendo la captura obligatoria de la especie vegetal, la variedad específica, la fecha exacta de siembra y la densidad poblacional por hectárea, almacenando estos datos en una estructura relacional que permita el cálculo automatizado de rendimientos y proyecciones de cosecha.
+RF-02:
+ El sistema debe permitir al 
+Agricultor
+ realizar la vinculación geográfica de cada registro de cultivo a un lote, parcela o sección específica dentro de una finca previamente registrada, asegurando la trazabilidad espacial y facilitando el manejo diferencial de la producción por zonas.
+RF-03:
+ El sistema debe habilitar una interfaz de consulta dinámica para el 
+Agricultor
+ y el 
+Técnico Agropecuario
+ que determine y presente el estado fenológico actual del cultivo (germinación, crecimiento, floración, etc.), realizando el cálculo basado en la fecha de siembra y el cruce con las constantes térmicas y datos climáticos registrados en la plataforma.
+RF-04:
+ El sistema debe permitir al 
+Agricultor
+ realizar la actualización del estado del ciclo de vida del cultivo (en crecimiento, en cosecha, finalizado o siniestrado), manteniendo un registro histórico inmutable de todos los cambios para auditorías de producción y análisis de rendimiento por parte de la 
+Asociación Agrícola
+.
+RF-05:
+ El sistema debe proporcionar al 
+Técnico Agropecuario
+ una herramienta de búsqueda avanzada y filtrado de cultivos, permitiendo la segmentación por tipo de producto, rangos de fechas de siembra, ubicación geográfica y estado fitosanitario reportado, para optimizar las jornadas de asistencia técnica.
+RF-06:
+ El sistema debe ejecutar una validación lógica para asegurar que el área total asignada a los cultivos por el 
+Agricultor
+ no exceda la extensión física disponible en la finca registrada, emitiendo alertas y bloqueando registros que generen inconsistencias en el inventario de tierras.
+UC2: Consultar Recomendaciones
+RF-07:
+ El sistema debe presentar al 
+Agricultor
+ un panel cronológico de recomendaciones técnicas validadas, detallando de forma exhaustiva el tipo de intervención sugerida (ya sea química, orgánica o de manejo mecánico), el cronograma de aplicación y el objetivo técnico que se espera alcanzar.
+RF-08:
+ El sistema debe permitir al 
+Agricultor
+ realizar el filtrado y organización de las recomendaciones técnicas recibidas en función del nivel de urgencia (Inmediata, Preventiva o Planificada) definido previamente por el 
+Técnico Agropecuario
+, asegurando la atención prioritaria de riesgos críticos.
+RF-09:
+ El sistema debe facilitar al 
+Agricultor
+ el acceso y visualización de guías detalladas de aplicación adjuntas a cada recomendación, las cuales deben incluir las dosificaciones exactas de insumos, los métodos de aplicación sugeridos y las medidas de seguridad necesarias para su ejecución.
+RF-10:
+ El sistema debe permitir al 
+Agricultor
+ realizar la confirmación de lectura de las recomendaciones técnicas recibidas, permitiendo que el sistema genere métricas y estadísticas de visualización para que el cuerpo técnico evalúe el nivel de atención prestado a las sugerencias.
+RF-11:
+ El sistema debe habilitar un mecanismo de retroalimentación para que el 
+Agricultor
+ reporte cualitativamente el grado de éxito o los resultados observados tras aplicar una recomendación técnica, proporcionando datos valiosos sobre la efectividad real del manejo sugerido en el campo.
+UC3: Validar Recomendaciones Técnicas
+RF-12:
+ El sistema debe permitir al 
+Técnico Agropecuario
+ visualizar y auditar las sugerencias de manejo generadas automáticamente por el motor de reglas del sistema, otorgándole la autoridad técnica para aprobar, modificar o rechazar su publicación hacia el perfil del 
+Agricultor
+.
+RF-13:
+ El sistema debe proporcionar un editor de texto técnico que permita al 
+Técnico Agropecuario
+ personalizar y adaptar el contenido de las recomendaciones generadas automáticamente, asegurando que el lenguaje y las instrucciones sean coherentes con el contexto cultural y educativo del 
+Agricultor
+.
+RF-14:
+ El sistema debe permitir al 
+Técnico Agropecuario
+ la creación y registro de recomendaciones técnicas manuales desde cero, fundamentadas exclusivamente en su criterio profesional y en los hallazgos realizados durante las visitas de inspección presencial a la finca.
+RF-15:
+ El sistema debe permitir al 
+Técnico Agropecuario
+ enriquecer las recomendaciones técnicas mediante la adjunción de archivos multimedia, tales como fotografías de plagas detectadas, videos instructivos o esquemas de poda, con el fin de mejorar la comprensión por parte del 
+Agricultor
+.
+RF-16:
+ El sistema debe permitir al 
+Técnico Agropecuario
+ establecer una fecha de caducidad o vigencia para cada recomendación emitida, garantizando que el 
+Agricultor
+ no aplique medidas técnicas fuera del tiempo agronómico óptimo para el cultivo.
+UC4: Consultar Alertas Climáticas
+RF-17:
+ El sistema debe integrar una funcionalidad para que el 
+Agricultor
+ visualice alertas climáticas de eventos críticos (inundaciones, sequías prolongadas, heladas o vientos fuertes), procesadas a partir de datos geoespaciales y estaciones meteorológicas integradas a la plataforma.
+RF-18:
+ El sistema debe categorizar y clasificar visualmente las alertas climáticas mediante una escala cromática de riesgo (Rojo para peligro inminente, Naranja para precaución y Amarillo para vigilancia), permitiendo que el 
+Agricultor
+ identifique instantáneamente la gravedad del evento.
+RF-19:
+ El sistema debe permitir al 
+Agricultor
+ realizar consultas sobre el historial de alertas climáticas registradas en su zona geográfica específica, facilitando la identificación de patrones de riesgo estacionales y la planificación preventiva en el departamento del Magdalena.
+RF-20:
+ El sistema debe facultar al 
+Técnico Agropecuario
+ para emitir y difundir alertas climáticas manuales de carácter preventivo cuando identifique cambios meteorológicos locales o riesgos inminentes que no hayan sido capturados por los servicios automáticos de la plataforma.
+UC5: Consultar Reportes de Producción
+RF-21:
+ El sistema debe permitir a la 
+Asociación Agrícola
+ la generación de reportes consolidados de producción que sumen y analicen el total de hectáreas sembradas por cada 
+Agricultor
+ asociado, segmentando la información por jurisdicciones geográficas o tipos de cultivo.
+RF-22:
+ El sistema debe proporcionar una herramienta para que la 
+Asociación Agrícola
+ exporte reportes de proyección de cosecha en formato PDF de alta calidad, los cuales deben incluir encabezados institucionales y firmas digitales para ser utilizados en gestiones comerciales o ante entidades bancarias.
+RF-23:
+ El sistema debe habilitar un tablero visual para la 
+Asociación Agrícola
+ que presente gráficos de barras, circulares y de tendencia que representen de manera estadística la diversidad de cultivos y la evolución de la productividad de sus miembros asociados.
+RF-24:
+ El sistema debe permitir a la 
+Asociación Agrícola
+ aplicar filtros avanzados por vereda, municipio o predio en los reportes de rendimiento, facilitando la detección temprana de zonas con baja productividad o brotes de plagas que afecten la producción agrícola.
+UC6: Gestionar Usuarios
+RF-25:
+ El sistema debe permitir al 
+Administrador
+ realizar el registro y gestión de cuentas de usuario para 
+Agricultores
+, capturando de forma obligatoria los datos de identidad oficial, ubicación geográfica del domicilio y contacto telefónico verificado para asegurar la comunicación.
+RF-26:
+ El sistema debe permitir al 
+Administrador
+ realizar la desactivación o suspensión de perfiles de 
+Técnicos Agropecuarios
+ que finalicen su vinculación con la plataforma, garantizando la seguridad de la información y revocando el acceso a los datos sensibles de los predios.
+RF-27:
+ El sistema debe implementar un registro de auditoría técnica (logs) que permita al 
+Administrador
+ verificar qué actor realizó cambios específicos en los parámetros de configuración del sistema, detallando fecha, hora y naturaleza de la modificación.
+RF-28:
+ El sistema debe proporcionar al 
+Administrador
+ herramientas para gestionar la recuperación de cuentas de usuario mediante protocolos de validación segura, utilizando correos electrónicos institucionales o números de telefonía móvil registrados previamente.
+UC7: Configurar Parámetros Técnicos
+RF-29:
+ El sistema debe permitir al 
+Administrador
+ definir y ajustar los rangos críticos de temperatura, humedad y precipitación que disparan de forma automatizada las alertas climáticas y las sugerencias de manejo en toda la plataforma.
+RF-30:
+ El sistema debe permitir al 
+Administrador
+ la actualización y mantenimiento del catálogo maestro de insumos agrícolas, fertilizantes y plaguicidas autorizados por los entes reguladores para ser referenciados en las recomendaciones técnicas.
+RF-31:
+ El sistema debe permitir al 
+Administrador
+ configurar y parametrizar las reglas de negocio y lógica agronómica que determinan qué recomendaciones automáticas se sugieren basándose en el análisis del tipo de suelo y la etapa fenológica del cultivo.
+RF-32:
+ El sistema debe permitir al 
+Administrador
+ gestionar la conectividad y frecuencia de actualización de las APIs de servicios climáticos y geoespaciales externos integrados, asegurando la continuidad del flujo de datos ambientales.
+UC8: Gestionar Perfil
+RF-33:
+ El sistema debe permitir que todos los actores (Agricultor, Técnico, Asociación y Admin) consulten su información de perfil personal, visualizando su rol asignado, permisos habilitados y el registro histórico de sus últimas conexiones a la plataforma.
+RF-34:
+ El sistema debe habilitar una funcionalidad para que el 
+Agricultor
+ actualice sus datos de contacto y dirección de residencia física, asegurando que la base de datos se mantenga vigente para la recepción de notificaciones críticas o asistencia en campo.
+RF-35:
+ El sistema debe permitir a los usuarios gestionar el cambio de sus credenciales de acceso (contraseñas) a través de un flujo de seguridad que requiera la validación de la credencial anterior y cumpla con estándares mínimos de complejidad.
+UC9: Gestionar Fincas
+RF-36:
+ El sistema debe permitir al 
+Agricultor
+ realizar el registro detallado de la ubicación geográfica de sus fincas, capturando las coordenadas GPS precisas o permitiendo la selección perimetral directa sobre una interfaz de mapa interactivo de alta resolución.
+RF-37:
+ El sistema debe permitir al 
+Agricultor
+ documentar y detallar las características físico-químicas del terreno de cada finca, incluyendo datos como textura del suelo, niveles de pH, porcentaje de materia orgánica y grado de pendiente para optimizar las recomendaciones.
+RF-38:
+ El sistema debe proporcionar al 
+Técnico Agropecuario
+ una vista cartográfica consolidada que muestre la ubicación exacta de todas las fincas bajo su supervisión, facilitando la planificación logística de las rutas de asistencia técnica presencial.
+RF-39:
+ El sistema debe permitir al 
+Agricultor
+ realizar el inventario de la infraestructura disponible en cada finca, registrando datos sobre pozos profundos, capacidad de bodegas de almacenamiento, sistemas de riego instalados y maquinaria agrícola operativa.
+UC10: Sincronizar Información
+RF-40:
+ El sistema debe implementar una arquitectura de almacenamiento local (offline) que permita al 
+Agricultor
+ realizar registros completos de cultivos, fincas y novedades en la memoria del dispositivo móvil cuando no exista disponibilidad de conexión a Internet.
+RF-41:
+ El sistema debe ejecutar un protocolo de validación de coherencia e integridad de datos al momento de iniciar la sincronización, asegurando que la información almacenada localmente por el 
+Agricultor
+ se fusione correctamente con el servidor central sin sobrescribir datos más recientes.
+RF-42:
+ El sistema debe proporcionar al 
+Agricultor
+ un indicador visual dinámico que notifique en tiempo real el estado de la sincronización de datos (Enviando, Sincronizado, Error de Conexión o Datos Pendientes), garantizando la transparencia y la integridad de la información del usuario.
+CASO DE USO NIVEL CERO
+CASOS DE USOS NIVEL 1
+Estilo Arquitectónico Seleccionado
+El sistema adopta una 
+arquitectura monolítica en capas bajo un modelo cliente-servidor
+.
+Este estilo organiza la aplicación en tres capas principales: presentación, lógica de negocio y persistencia de datos, centralizando la ejecución en un único backend accesible desde clientes web mediante comunicación HTTP.
+Justificación del Estilo Arquitectónico
+1. Restricciones económicas
+El proyecto se desarrolla en un contexto de recursos limitados, por lo tanto, se requiere una solución que minimice costos de desarrollo, despliegue y mantenimiento.
+En este sentido, la arquitectura monolítica en capas permite concentrar todos los componentes en una sola aplicación, evitando la necesidad de múltiples servicios, infraestructura distribuida o herramientas adicionales de orquestación.
+Esto reduce significativamente los costos operativos y facilita el uso de tecnologías de bajo costo o de código abierto, lo que la hace adecuada para el contexto del sistema.
+2. Restricciones técnicas (conectividad)
+El sistema debe operar en entornos con conectividad intermitente, entonces, se requiere una arquitectura que facilite el control de la lógica de negocio y la gestión de sincronización de datos.
+Al implementar un backend centralizado, es posible manejar de forma más controlada los procesos de almacenamiento temporal, validación de datos y sincronización diferida.
+Por esto, una arquitectura monolítica permite implementar de manera más simple mecanismos como almacenamiento local en el cliente y sincronización posterior, reduciendo la complejidad que implicaría coordinar múltiples servicios distribuidos.
+3. Atributos de calidad prioritarios
+El sistema prioriza atributos como 
+usabilidad, disponibilidad, mantenibilidad e integridad de datos
+.
+Dado que los usuarios tienen distintos niveles de alfabetización digital, se requiere una solución estable, predecible y fácil de usar.
+La arquitectura monolítica en capas favorece estos atributos porque reduce puntos de fallo, simplifica la depuración y permite mantener coherencia en el manejo de datos.
+Además, facilita el desarrollo inicial del sistema dentro de un tiempo limitado, lo que es clave en el contexto académico del proyecto.
+Alternativa Descartada: Microservicios
+Se consideró una arquitectura basada en microservicios, sin embargo, fue descartada debido a su alta complejidad técnica y costos asociados.
+Este enfoque implica la división del sistema en múltiples servicios independientes, lo que requiere mecanismos adicionales de comunicación, seguridad, despliegue y monitoreo.
+Por lo tanto, se requiere mayor esfuerzo de desarrollo, mayor infraestructura y mayor tiempo de implementación.
+Dado el contexto del proyecto, estas características no resultan viables, ya que incrementan el riesgo y superan los beneficios que podría aportar esta arquitectura en esta etapa.
+Modelo de datos
+Diagrama de clases 
+Diagrama de BD
+Diseño de interfaces
+Diseño Arquitectónico
+Diagrama de bloques
+El diagrama de bloques representa la arquitectura general del sistema, mostrando la interacción entre el cliente web, el servidor 
+backend
+ y la base de datos. Se identifican claramente las capas de presentación, lógica de negocio y persistencia dentro del 
+backend
+, así como los mecanismos de operación offline mediante almacenamiento local y sincronización diferida. Este diseño permite garantizar el funcionamiento del sistema en entornos con conectividad intermitente, alineándose con los requerimientos funcionales definidos.
+ 
+Diagrama de paquetes
+El diagrama de paquetes representa la organización interna del sistema siguiendo una arquitectura en capas. La capa de presentación se encarga de recibir las solicitudes del cliente mediante controladores, la capa de lógica de negocio procesa las reglas del sistema a través de servicios, y la capa de persistencia gestiona el acceso a los datos mediante repositorios. Adicionalmente, se incluye un paquete de integración para la comunicación con servicios externos, como 
+APIs
+ climáticas. Esta estructura permite separar responsabilidades, mejorar la mantenibilidad y facilitar la evolución del sistema.
+  
+Diagrama de despliegue
+Selección de metodología de desarrollo
+Se seleccionó la metodología 
+Rational Unified Process (RUP)
+ para el desarrollo del sistema.
+Esta metodología permite un enfoque iterativo e incremental, orientado a la arquitectura, lo cual facilita la identificación temprana de riesgos y la definición de una base arquitectónica sólida desde las primeras fases del proyecto.
+ RUP resulta adecuada para el contexto académico del sistema, ya que promueve una documentación estructurada y detallada, asegurando la trazabilidad entre los requerimientos funcionales, el diseño y la arquitectura del software.
+Selección de Estilo Arquitectónico: Monolito en Capas 
+Decisión:
+ Arquitectura 
+Monolítica organizada en Capas
+ (Presentación, Negocio, Persistencia).
+Justificación:
+ Para el contexto de una plataforma de agricultura dirigida a pequeños productores, un monolito es la opción más eficiente. Reduce la complejidad del despliegue y los costos de infraestructura (servidores), manteniendo una alta mantenibilidad gracias a la separación de responsabilidades 
+Elección de tipo de base de datos
+Se eligió una 
+base de datos relacional
+ 
+PostgreSQL 
+como mecanismo de persistencia de la información.
+Esta decisión se fundamenta en que el sistema maneja información altamente estructurada y relacionada, como usuarios, cultivos, fincas, recomendaciones técnicas y reportes de producción, los cuales requieren consistencia e integridad referencial.
+ Las bases de datos relacionales permiten realizar consultas complejas y generar reportes consolidados de manera eficiente, además de ser compatibles con tecnologías de bajo costo y de código abierto.
+Estrategia de manejo de conectividad
+Se definió una estrategia de manejo de conectividad 
+offline
+first con sincronización diferida
+. Dado que el sistema operará en zonas rurales con internet intermitente, se permite el almacenamiento local de la información en el dispositivo cuando no hay conexión. Una vez restablecida la señal, los datos se sincronizan con el servidor central mediante validaciones que garantizan la integridad de la información. Esto asegura que el agricultor pueda continuar sus actividades sin depender de una conexión permanente.
+Conclusiones
+El proyecto permitió aplicar los conceptos de arquitectura de software a un sistema real, partiendo del análisis de los requerimientos funcionales y de las restricciones técnicas, económicas y sociales del contexto rural.
+La elección de una 
+arquitectura monolítica en capas bajo el modelo cliente-servidor
+ resultó adecuada, ya que reduce la complejidad del sistema, facilita su mantenimiento y se ajusta a las limitaciones de infraestructura y presupuesto. Este enfoque garantiza una correcta organización interna y la integridad de los datos.
+La adopción de la metodología 
+Rational Unified Process (RUP)
+ favoreció una definición clara de la arquitectura desde las etapas iniciales, asegurando trazabilidad entre requerimientos, diseño y decisiones técnicas.
+ En general, las decisiones arquitectónicas tomadas permiten un sistema viable, coherente y apropiado para el contexto académico y social del proyecto.
+

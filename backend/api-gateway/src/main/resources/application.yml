@@ -1,0 +1,36 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+      routes:
+        - id: auth-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**
+        - id: agro-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/fincas/**,/api/cultivos/**,/api/parcelas/**,/api/dashboard/**,/api/parametros/**,/api/reportes/**,/api/sincronizacion/**
+        - id: recommendations-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/recomendaciones/**,/api/alertas/**
+
+app:
+  jwt:
+    secret: s3cr3tK3yAgr0Sm4rtM4gd4l3n4Pr0duct0r3s2024xYz!@#

@@ -10,6 +10,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+import DashboardRouter from './pages/DashboardRouter';
+import DashboardAdminPage from './pages/DashboardAdminPage';
+import DashboardTecnicoPage from './pages/DashboardTecnicoPage';
 import FincasPage from './pages/FincasPage';
 import FincaFormPage from './pages/FincaFormPage';
 import ParcelasFincaPage from './pages/ParcelasFincaPage';
@@ -22,6 +25,8 @@ import SyncPage from './pages/SyncPage';
 import ParametrosPage from './pages/ParametrosPage';
 import PerfilPage from './pages/PerfilPage';
 import WelcomePage from './pages/WelcomePage';
+import AdminUsuariosPage from './pages/AdminUsuariosPage';
+import TecnicoProductoresPage from './pages/TecnicoProductoresPage';
 
 function Layout({ children }) {
   return (
@@ -47,7 +52,7 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
 
         {/* Rutas protegidas */}
-        <Route path="/dashboard" element={<ProtectedRoute><Layout><DashboardPage /></Layout></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Layout><DashboardRouter /></Layout></ProtectedRoute>} />
         <Route path="/perfil" element={<ProtectedRoute><Layout><PerfilPage /></Layout></ProtectedRoute>} />
         <Route path="/sync" element={<ProtectedRoute><Layout><SyncPage /></Layout></ProtectedRoute>} />
 
@@ -59,16 +64,20 @@ export default function App() {
         <Route path="/fincas/:id/parcelas" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN']}><Layout><ParcelasFincaPage /></Layout></ProtectedRoute>} />
 
         {/* Cultivos */}
-        <Route path="/cultivos" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN']}><Layout><CultivosPage /></Layout></ProtectedRoute>} />
+        <Route path="/cultivos" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN', 'TECNICO']}><Layout><CultivosPage /></Layout></ProtectedRoute>} />
         <Route path="/cultivos/nuevo" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN']}><Layout><CultivoFormPage /></Layout></ProtectedRoute>} />
         <Route path="/cultivos/:id" element={<ProtectedRoute><Layout><CultivoFormPage /></Layout></ProtectedRoute>} />
-        <Route path="/cultivos/:id/editar" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN']}><Layout><CultivoFormPage /></Layout></ProtectedRoute>} />
+        <Route path="/cultivos/:id/editar" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN', 'TECNICO']}><Layout><CultivoFormPage /></Layout></ProtectedRoute>} />
 
         {/* Otros módulos */}
         <Route path="/recomendaciones" element={<ProtectedRoute><Layout><RecomendacionesPage /></Layout></ProtectedRoute>} />
         <Route path="/alertas" element={<ProtectedRoute><Layout><AlertasPage /></Layout></ProtectedRoute>} />
         <Route path="/reportes" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN']}><Layout><ReportesPage /></Layout></ProtectedRoute>} />
         <Route path="/parametros" element={<ProtectedRoute roles={['ADMIN']}><Layout><ParametrosPage /></Layout></ProtectedRoute>} />
+
+        {/* Admin / Técnico pages */}
+        <Route path="/usuarios" element={<ProtectedRoute roles={['ADMIN']}><Layout><AdminUsuariosPage /></Layout></ProtectedRoute>} />
+        <Route path="/productores" element={<ProtectedRoute roles={['TECNICO']}><Layout><TecnicoProductoresPage /></Layout></ProtectedRoute>} />
 
         {/* Default / Welcome */}
         <Route path="/" element={<WelcomePage />} />

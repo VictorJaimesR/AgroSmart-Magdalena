@@ -38,7 +38,65 @@ export default function Navbar() {
               </Link>
             </li>
 
-            {(isProductor() || isAdmin()) && (
+            {/* ADMIN menu */}
+            {isAdmin() && (
+              <>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/usuarios')}`} to="/usuarios">
+                    <i className="bi bi-people me-1"></i>Usuarios
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/fincas')}`} to="/fincas">
+                    <i className="bi bi-geo-alt me-1"></i>Fincas
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/cultivos')}`} to="/cultivos">
+                    <i className="bi bi-flower1 me-1"></i>Cultivos
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/alertas')}`} to="/alertas">
+                    <i className="bi bi-exclamation-triangle me-1"></i>Alertas
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/reportes')}`} to="/reportes">
+                    <i className="bi bi-file-earmark-bar-graph me-1"></i>Reportes
+                  </Link>
+                </li>
+              </>
+            )}
+
+            {/* TÉCNICO menu */}
+            {isTecnico() && (
+              <>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/productores')}`} to="/productores">
+                    <i className="bi bi-people me-1"></i>Productores
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/cultivos')}`} to="/cultivos">
+                    <i className="bi bi-flower1 me-1"></i>Cultivos
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/recomendaciones')}`} to="/recomendaciones">
+                    <i className="bi bi-lightbulb me-1"></i>Recomendaciones
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/alertas')}`} to="/alertas">
+                    <i className="bi bi-exclamation-triangle me-1"></i>Alertas
+                  </Link>
+                </li>
+              </>
+            )}
+
+            {/* PRODUCTOR menu (mantener comportamiento actual) */}
+            {isProductor() && (
               <>
                 <li className="nav-item">
                   <Link className={`nav-link ${isActive('/fincas')}`} to="/fincas">
@@ -50,31 +108,27 @@ export default function Navbar() {
                     <i className="bi bi-flower1 me-1"></i>Cultivos
                   </Link>
                 </li>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/recomendaciones')}`} to="/recomendaciones">
+                    <i className="bi bi-lightbulb me-1"></i>Recomendaciones
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/alertas')}`} to="/alertas">
+                    <i className="bi bi-exclamation-triangle me-1"></i>Alertas
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/reportes')}`} to="/reportes">
+                    <i className="bi bi-file-earmark-bar-graph me-1"></i>Reportes
+                  </Link>
+                </li>
               </>
             )}
 
-            <li className="nav-item">
-              <Link className={`nav-link ${isActive('/recomendaciones')}`} to="/recomendaciones">
-                <i className="bi bi-lightbulb me-1"></i>Recomendaciones
-              </Link>
-            </li>
-
-            <li className="nav-item">
-              <Link className={`nav-link ${isActive('/alertas')}`} to="/alertas">
-                <i className="bi bi-exclamation-triangle me-1"></i>Alertas
-              </Link>
-            </li>
-
-            {(isProductor() || isAdmin()) && (
-              <li className="nav-item">
-                <Link className={`nav-link ${isActive('/reportes')}`} to="/reportes">
-                  <i className="bi bi-file-earmark-bar-graph me-1"></i>Reportes
-                </Link>
-              </li>
-            )}
-
+            {/* Parámetros (solo admin) */}
             {isAdmin() && (
-              <li className="nav-item">
+              <li className="nav-item d-lg-none">
                 <Link className={`nav-link ${isActive('/parametros')}`} to="/parametros">
                   <i className="bi bi-gear me-1"></i>Parámetros
                 </Link>

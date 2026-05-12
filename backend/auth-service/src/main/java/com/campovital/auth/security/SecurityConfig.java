@@ -41,11 +41,15 @@ public class SecurityConfig {
                         // Swagger / documentación
                         .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
 
+                        // Endpoint interno de errores (evita 401 falsos ante 400/409/500)
+                        .requestMatchers("/error", "/api/error").permitAll()
+
                         // Preflight CORS
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // Endpoints de admin
                         .requestMatchers("/parametros-tecnicos/**", "/api/parametros-tecnicos/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
 
                         // Todo lo demás requiere autenticación
                         .anyRequest().authenticated()

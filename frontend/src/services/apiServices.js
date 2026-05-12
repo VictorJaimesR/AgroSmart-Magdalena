@@ -5,6 +5,14 @@ export const authService = {
   register: (data) => api.post('/auth/register', data),
 };
 
+export const adminUserService = {
+  listarUsuarios: () => api.get('/admin/usuarios'),
+  obtenerUsuario: (id) => api.get(`/admin/usuarios/${id}`),
+  bloquearUsuario: (id) => api.put(`/admin/usuarios/${id}/bloquear`),
+  desbloquearUsuario: (id) => api.put(`/admin/usuarios/${id}/desbloquear`),
+  eliminarUsuario: (id) => api.delete(`/admin/usuarios/${id}`),
+};
+
 export const fincaService = {
   listar: (page = 0, size = 10) => api.get(`/fincas?page=${page}&size=${size}`),
   listarPorProductor: (id, page = 0) => api.get(`/fincas/productor/${id}?page=${page}`),

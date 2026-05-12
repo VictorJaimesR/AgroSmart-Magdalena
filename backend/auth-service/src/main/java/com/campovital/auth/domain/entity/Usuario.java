@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import com.campovital.auth.domain.enums.EstadoUsuario;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -52,6 +54,11 @@ public class Usuario extends BaseEntity {
     @Column(nullable = false)
     private Boolean activo = true;
 
+        @Enumerated(EnumType.STRING)
+        @Column(name = "estado", length = 20)
+        @Builder.Default
+        private EstadoUsuario estado = EstadoUsuario.ACTIVO;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "usuario_roles",
@@ -60,4 +67,21 @@ public class Usuario extends BaseEntity {
     )
     @Builder.Default
     private Set<Rol> roles = new HashSet<>();
+
+        @PrePersist
+        @PreUpdate
+        private void sincronizarEstado() {
+                if (estado == null) {
+                        estado = Boolean.TRUE.equals(activo) ? EstadoUsuario.ACTIVO : EstadoUsuario.INACTIVO;
+                }
+                this.activo = EstadoUsuario.ACTIVO.equals(estado);
+        }
+
+        public EstadoUsuario getEstadoActual() {
+                if (estado != null) {
+                        return estado;
+                }
+                return Boolean.TRUE.equals(activo) ? EstadoUsuario.ACTIVO : EstadoUsuario.INACTIVO;
+        }
 }
+

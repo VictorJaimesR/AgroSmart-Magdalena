@@ -102,4 +102,22 @@ public class AdminUsuarioService {
                 .ultimoAcceso(null)
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public Long totalUsuarios() {
+        try {
+            return usuarioRepository.countByActivoTrue();
+        } catch (Exception e) {
+            return usuarioRepository.count();
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public Long contarPorRol(String rolNombre) {
+        try {
+            return usuarioRepository.countByRol(rolNombre);
+        } catch (Exception e) {
+            return 0L;
+        }
+    }
 }

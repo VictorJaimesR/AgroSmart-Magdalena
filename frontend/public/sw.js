@@ -32,7 +32,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.url.includes('/api/')) {
-    // Network-first para llamadas al backend
+    // No cachear métodos que no sean GET. Network-first para GET API.
+    if (request.method !== 'GET') {
+      event.respondWith(fetch(request));
+      return;
+    }
+    // Network-first para llamadas GET al backend
     event.respondWith(
       fetch(request)
         .then((response) => {

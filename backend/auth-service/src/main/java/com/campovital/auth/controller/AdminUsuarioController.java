@@ -50,4 +50,18 @@ public class AdminUsuarioController {
     public ResponseEntity<ApiResponse<UsuarioAdminResponse>> eliminarUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok("Usuario desactivado", adminUsuarioService.eliminarUsuario(id)));
     }
+
+    @Operation(summary = "Total de usuarios")
+    @GetMapping("/count")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ApiResponse<Long>> totalUsuarios() {
+        return ResponseEntity.ok(ApiResponse.ok("Total usuarios", adminUsuarioService.totalUsuarios()));
+    }
+
+    @Operation(summary = "Contar usuarios por rol")
+    @GetMapping("/count-by-role/{rolNombre}")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ApiResponse<Long>> contarPorRol(@PathVariable String rolNombre) {
+        return ResponseEntity.ok(ApiResponse.ok("Usuarios por rol", adminUsuarioService.contarPorRol(rolNombre)));
+    }
 }

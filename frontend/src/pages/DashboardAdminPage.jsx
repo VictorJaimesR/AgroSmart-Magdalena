@@ -10,20 +10,30 @@ export default function DashboardAdminPage() {
     totalUsuarios: 0,
     productores: 0,
     tecnicos: 0,
-    fincas: 0,
-    cultivos: 0,
-    alertas: 0,
+    asociaciones: 0,
+    fincasRegistradas: 0,
+    cultivosRegistrados: 0,
+    alertasActivas: 0,
   });
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await dashboardService.getAdminStats().catch(() => null);
-        if (res && res.data && res.data.datos) {
-          setStats((s) => ({ ...s, ...res.data.datos }));
+        const res = await dashboardService.getAdminStats();
+        if (res?.data?.datos) {
+          const adminStats = res.data.datos;
+          setStats({
+            totalUsuarios: adminStats.totalUsuarios || 0,
+            productores: adminStats.productores || 0,
+            tecnicos: adminStats.tecnicos || 0,
+            asociaciones: adminStats.asociaciones || 0,
+            fincasRegistradas: adminStats.fincasRegistradas || 0,
+            cultivosRegistrados: adminStats.cultivosRegistrados || 0,
+            alertasActivas: adminStats.alertasActivas || 0,
+          });
         }
       } catch (err) {
-        console.error('Error cargando admin stats', err);
+        console.error('Error loading admin stats:', err);
       } finally {
         setLoading(false);
       }
@@ -72,9 +82,19 @@ export default function DashboardAdminPage() {
 
         <div className="col-6 col-md-4">
           <div className="stat-card">
+            <div className="stat-icon bg-purple"><i className="bi bi-diagram-3"></i></div>
+            <div>
+              <div className="stat-value">{stats.asociaciones || 0}</div>
+              <div className="stat-label">Asociaciones</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-6 col-md-4">
+          <div className="stat-card">
             <div className="stat-icon bg-green"><i className="bi bi-geo-alt-fill"></i></div>
             <div>
-              <div className="stat-value">{stats.fincas || 0}</div>
+              <div className="stat-value">{stats.fincasRegistradas || 0}</div>
               <div className="stat-label">Fincas registradas</div>
             </div>
           </div>
@@ -84,7 +104,7 @@ export default function DashboardAdminPage() {
           <div className="stat-card">
             <div className="stat-icon bg-amber"><i className="bi bi-flower1"></i></div>
             <div>
-              <div className="stat-value">{stats.cultivos || 0}</div>
+              <div className="stat-value">{stats.cultivosRegistrados || 0}</div>
               <div className="stat-label">Cultivos registrados</div>
             </div>
           </div>
@@ -94,7 +114,7 @@ export default function DashboardAdminPage() {
           <div className="stat-card">
             <div className="stat-icon bg-red"><i className="bi bi-exclamation-triangle-fill"></i></div>
             <div>
-              <div className="stat-value">{stats.alertas || 0}</div>
+              <div className="stat-value">{stats.alertasActivas || 0}</div>
               <div className="stat-label">Alertas activas</div>
             </div>
           </div>

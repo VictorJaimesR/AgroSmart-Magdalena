@@ -81,8 +81,8 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public Map<String, Object> getAsociacionStats() {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("productoresAsociados", productorRepository.count());
-        stats.put("cultivosPorZonaActivos", cultivoRepository.count());
+        stats.put("productoresAsociados", productorRepository.findByActivoTrue(org.springframework.data.domain.Pageable.unpaged()).getTotalElements());
+        stats.put("cultivosPorZonaActivos", cultivoRepository.findByActivoTrue(org.springframework.data.domain.Pageable.unpaged()).getTotalElements());
         stats.put("alertasRelevantes", countFromRecommendationsService("http://localhost:8083/api/alertas"));
         return stats;
     }
@@ -90,11 +90,53 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public Map<String, Object> getAdminStats() {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("totalUsuarios", productorRepository.count());
-        stats.put("fincasTotales", fincaRepository.count());
-        stats.put("cultivosTotales", cultivoRepository.count());
-        stats.put("alertasEmitidas", countFromRecommendationsService("http://localhost:8083/api/alertas"));
+        try {
+            // Conteos globales del sistema
+            stats.put("totalUsuarios", countFromAuthService("http://localhost:8081/api/admin/usuarios/count"));
+            stats.put("productores", countFromAuthService("http://localhost:8081/api/admin/usuarios/count-by-role/AGRICULTOR"));
+            stats.put("tecnicos", countFromAuthService("http://localhost:8081/api/admin/usuarios/count-by-role/TECNICO"));
+            stats.put("asociaciones", countFromAuthService("http://localhost:8081/api/admin/usuarios/count-by-role/ASOCIACION"));
+            stats.put("fincasRegistradas", fincaRepository.findByActivoTrue(org.springframework.data.domain.Pageable.unpaged()).getTotalElements());
+            stats.put("cultivosRegistrados", cultivoRepository.findByActivoTrue(org.springframework.data.domain.Pageable.unpaged()).getTotalElements());
+            stats.put("alertasActivas", countFromRecommendationsService("http://localhost:8083/api/alertas"));
+        } catch (Exception e) {
+            log.error("Error fetching admin stats", e);
+            // Retornar valores por defecto si hay error
+            stats.put("totalUsuarios", 0);
+            stats.put("productores", 0);
+            stats.put("tecnicos", 0);
+            stats.put("asociaciones", 0);
+            try {
+                stats.put("fincasRegistradas", fincaRepository.findByActivoTrue(org.springframework.data.domain.Pageable.unpaged()).getTotalElements());
+            } catch (Exception ex) {
+                stats.put("fincasRegistradas", 0);
+            }
+            try {
+                stats.put("cultivosRegistrados", cultivoRepository.findByActivoTrue(org.springframework.data.domain.Pageable.unpaged()).getTotalElements());
+            } catch (Exception ex) {
+                stats.put("cultivosRegistrados", 0);
+            }
+            stats.put("alertasActivas", 0);
+        }
         return stats;
+    }
+
+    @SuppressWarnings("unchecked")
+    private long countFromAuthService(String url) {
+        try {
+            Map<String, Object> response = restTemplate.getForObject(url, Map.class);
+            if (response == null) return 0L;
+            Object datos = response.get("datos");
+            if (datos instanceof Number number) return number.longValue();
+            if (datos instanceof Map<?, ?> m && m.containsKey("count")) {
+                Object count = m.get("count");
+                if (count instanceof Number number) return number.longValue();
+            }
+            return 0L;
+        } catch (Exception e) {
+            log.warn("Error calling auth service: {}", url, e);
+            return 0L;
+        }
     }
 
     @SuppressWarnings("unchecked")

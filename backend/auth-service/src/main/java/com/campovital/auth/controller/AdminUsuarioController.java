@@ -15,7 +15,7 @@ import java.util.List;
 @Tag(name = "Administración de usuarios", description = "Gestión administrativa de usuarios")
 @RestController
 @RequestMapping("/admin/usuarios")
-@PreAuthorize("hasRole('ADMIN')")
+
 @RequiredArgsConstructor
 public class AdminUsuarioController {
 
@@ -23,30 +23,35 @@ public class AdminUsuarioController {
 
     @Operation(summary = "Listar usuarios")
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<UsuarioAdminResponse>>> listarUsuarios() {
         return ResponseEntity.ok(ApiResponse.ok("Usuarios listados", adminUsuarioService.listarUsuarios()));
     }
 
     @Operation(summary = "Obtener usuario")
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UsuarioAdminResponse>> obtenerUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok("Usuario obtenido", adminUsuarioService.obtenerUsuario(id)));
     }
 
     @Operation(summary = "Bloquear usuario")
     @PutMapping("/{id}/bloquear")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UsuarioAdminResponse>> bloquearUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok("Usuario bloqueado", adminUsuarioService.bloquearUsuario(id)));
     }
 
     @Operation(summary = "Desbloquear usuario")
     @PutMapping("/{id}/desbloquear")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UsuarioAdminResponse>> desbloquearUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok("Usuario desbloqueado", adminUsuarioService.desbloquearUsuario(id)));
     }
 
     @Operation(summary = "Desactivar usuario")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<UsuarioAdminResponse>> eliminarUsuario(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.ok("Usuario desactivado", adminUsuarioService.eliminarUsuario(id)));
     }

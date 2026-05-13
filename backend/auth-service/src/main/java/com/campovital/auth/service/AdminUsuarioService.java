@@ -2,6 +2,7 @@ package com.campovital.auth.service;
 
 import com.campovital.auth.domain.entity.Usuario;
 import com.campovital.auth.domain.enums.EstadoUsuario;
+import com.campovital.auth.domain.enums.RolNombre;
 import com.campovital.auth.dto.response.UsuarioAdminResponse;
 import com.campovital.auth.exception.BadRequestException;
 import com.campovital.auth.exception.ResourceNotFoundException;
@@ -115,7 +116,9 @@ public class AdminUsuarioService {
     @Transactional(readOnly = true)
     public Long contarPorRol(String rolNombre) {
         try {
-            return usuarioRepository.countByRol(rolNombre);
+            return usuarioRepository.countByRol(RolNombre.valueOf(rolNombre));
+        } catch (IllegalArgumentException e) {
+            return 0L;
         } catch (Exception e) {
             return 0L;
         }

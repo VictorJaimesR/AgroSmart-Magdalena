@@ -49,6 +49,12 @@ public class SecurityConfig {
 
                         // Endpoints de admin
                         .requestMatchers("/parametros-tecnicos/**", "/api/parametros-tecnicos/**").hasRole("ADMIN")
+                        // Endpoints públicos para conteos internos del dashboard admin
+                        .requestMatchers("/admin/usuarios/count", "/api/admin/usuarios/count").permitAll()
+                        .requestMatchers("/admin/usuarios/count-by-role/**", "/api/admin/usuarios/count-by-role/**").permitAll()
+
+                        // Endpoints de admin
+                        .requestMatchers("/parametros-tecnicos/**", "/api/parametros-tecnicos/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
 
                         // Todo lo demás requiere autenticación

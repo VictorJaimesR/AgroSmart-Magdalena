@@ -120,10 +120,6 @@ export default function DashboardAdminPage() {
           </div>
         </div>
       </div>
-
-      <div className="card card-agro">
-        <div className="card-body text-center text-muted">Módulos administrativos principales disponibles aquí.</div>
-      </div>
     </div>
   );
 }

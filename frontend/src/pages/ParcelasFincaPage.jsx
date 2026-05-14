@@ -279,7 +279,7 @@ export default function ParcelasFincaPage() {
           </div>
 
           {!showParcelaForm && (
-            <button type="button" className="btn btn-outline-agro mb-3" onClick={() => setShowParcelaForm(true)}>
+            <button type="button" className="btn btn-agro-outline mb-3 shadow-sm" onClick={() => setShowParcelaForm(true)}>
               <i className="bi bi-plus-circle me-1"></i>Nueva Parcela
             </button>
           )}

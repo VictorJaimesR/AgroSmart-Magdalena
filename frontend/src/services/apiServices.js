@@ -13,6 +13,11 @@ export const adminUserService = {
   eliminarUsuario: (id) => api.delete(`/admin/usuarios/${id}`),
 };
 
+export const adminFincaService = {
+  listarFincas: (page = 0, size = 10) => api.get(`/admin/fincas?page=${page}&size=${size}`),
+  obtenerDetalle: (id) => api.get(`/admin/fincas/${id}`),
+};
+
 export const fincaService = {
   listar: (page = 0, size = 10) => api.get(`/fincas?page=${page}&size=${size}`),
   listarPorProductor: (id, page = 0) => api.get(`/fincas/productor/${id}?page=${page}`),

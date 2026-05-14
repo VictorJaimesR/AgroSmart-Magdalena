@@ -47,13 +47,8 @@ export default function Navbar() {
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className={`nav-link ${isActive('/fincas')}`} to="/fincas">
+                  <Link className={`nav-link ${isActive('/admin/fincas')}`} to="/admin/fincas">
                     <i className="bi bi-geo-alt me-1"></i>Fincas
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link className={`nav-link ${isActive('/cultivos')}`} to="/cultivos">
-                    <i className="bi bi-flower1 me-1"></i>Cultivos
                   </Link>
                 </li>
                 <li className="nav-item">

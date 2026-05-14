@@ -18,6 +18,11 @@ spring:
               - OPTIONS
             allowedHeaders: "*"
       routes:
+        - id: agro-admin-fincas
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/admin/fincas/**
+
         - id: auth-service
           uri: http://localhost:8081
           predicates:

@@ -26,6 +26,8 @@ import ParametrosPage from './pages/ParametrosPage';
 import PerfilPage from './pages/PerfilPage';
 import WelcomePage from './pages/WelcomePage';
 import AdminUsuariosPage from './pages/AdminUsuariosPage';
+import AdminFincasPage from './pages/AdminFincasPage';
+import AdminFincaDetallePage from './pages/AdminFincaDetallePage';
 import TecnicoProductoresPage from './pages/TecnicoProductoresPage';
 
 function Layout({ children }) {
@@ -77,6 +79,8 @@ export default function App() {
 
         {/* Admin / Técnico pages */}
         <Route path="/usuarios" element={<ProtectedRoute roles={['ADMIN']}><Layout><AdminUsuariosPage /></Layout></ProtectedRoute>} />
+        <Route path="/admin/fincas" element={<ProtectedRoute roles={['ADMIN']}><Layout><AdminFincasPage /></Layout></ProtectedRoute>} />
+        <Route path="/admin/fincas/:id" element={<ProtectedRoute roles={['ADMIN']}><Layout><AdminFincaDetallePage /></Layout></ProtectedRoute>} />
         <Route path="/productores" element={<ProtectedRoute roles={['TECNICO']}><Layout><TecnicoProductoresPage /></Layout></ProtectedRoute>} />
 
         {/* Default / Welcome */}

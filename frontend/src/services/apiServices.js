@@ -95,3 +95,10 @@ export const syncService = {
   listarPendientes: (userId) => api.get(`/sync/pending/${userId}`),
   procesar: (userId) => api.post(`/sync/process/${userId}`),
 };
+
+export const supervisionService = {
+  listarDisponibles: () => api.get('/supervisiones/fincas-disponibles'),
+  tomarFinca: (fincaId) => api.post(`/supervisiones/fincas/${fincaId}/tomar`),
+  listarMisFincas: () => api.get('/supervisiones/mis-fincas'),
+  finalizar: (supervisionId) => api.put(`/supervisiones/${supervisionId}/finalizar`),
+};

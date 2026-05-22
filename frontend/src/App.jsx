@@ -29,6 +29,8 @@ import AdminUsuariosPage from './pages/AdminUsuariosPage';
 import AdminFincasPage from './pages/AdminFincasPage';
 import AdminFincaDetallePage from './pages/AdminFincaDetallePage';
 import TecnicoProductoresPage from './pages/TecnicoProductoresPage';
+import TecnicoFincasDisponiblesPage from './pages/TecnicoFincasDisponiblesPage';
+import TecnicoMisFincasPage from './pages/TecnicoMisFincasPage';
 
 function Layout({ children }) {
   return (
@@ -82,6 +84,8 @@ export default function App() {
         <Route path="/admin/fincas" element={<ProtectedRoute roles={['ADMIN']}><Layout><AdminFincasPage /></Layout></ProtectedRoute>} />
         <Route path="/admin/fincas/:id" element={<ProtectedRoute roles={['ADMIN']}><Layout><AdminFincaDetallePage /></Layout></ProtectedRoute>} />
         <Route path="/productores" element={<ProtectedRoute roles={['TECNICO']}><Layout><TecnicoProductoresPage /></Layout></ProtectedRoute>} />
+        <Route path="/tecnico/fincas-disponibles" element={<ProtectedRoute roles={['TECNICO']}><Layout><TecnicoFincasDisponiblesPage /></Layout></ProtectedRoute>} />
+        <Route path="/tecnico/mis-fincas" element={<ProtectedRoute roles={['TECNICO']}><Layout><TecnicoMisFincasPage /></Layout></ProtectedRoute>} />
 
         {/* Default / Welcome */}
         <Route path="/" element={<WelcomePage />} />

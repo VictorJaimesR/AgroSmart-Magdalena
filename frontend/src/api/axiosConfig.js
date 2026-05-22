@@ -23,6 +23,12 @@ api.interceptors.request.use((config) => {
       if (userData.id) {
         config.headers['X-User-Id'] = userData.id;
       }
+      if (userData.email) {
+        config.headers['X-User-Email'] = userData.email;
+      }
+      if (userData.nombreCompleto) {
+        config.headers['X-User-Name'] = userData.nombreCompleto;
+      }
     } catch (e) {
       // Ignorar error de parse
     }

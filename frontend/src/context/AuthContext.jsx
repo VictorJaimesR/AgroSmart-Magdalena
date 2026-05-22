@@ -27,7 +27,8 @@ export function AuthProvider({ children }) {
       const userData = localStorage.getItem('agrosmart_user');
       if (token && userData) {
         const parsed = JSON.parse(userData);
-        if (!parsed.productorId) {
+        const hasProductorRole = parsed.roles && (parsed.roles.includes('ROLE_AGRICULTOR') || parsed.roles.includes('AGRICULTOR'));
+        if (hasProductorRole && !parsed.productorId) {
           localStorage.removeItem('agrosmart_token');
           localStorage.removeItem('agrosmart_user');
           setUser(null);

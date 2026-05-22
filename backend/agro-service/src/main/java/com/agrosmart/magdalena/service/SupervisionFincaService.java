@@ -48,10 +48,14 @@ public class SupervisionFincaService {
 
         Finca finca = fincaRepository.findById(fincaId).orElseThrow(() -> new IllegalArgumentException("Finca no encontrada"));
 
+        String nombreSeguro = (tecnicoNombre != null && !tecnicoNombre.trim().isEmpty()) 
+                ? tecnicoNombre 
+                : ((tecnicoEmail != null && !tecnicoEmail.trim().isEmpty()) ? tecnicoEmail : "Técnico #" + tecnicoUsuarioId);
+
         SupervisionFinca s = SupervisionFinca.builder()
                 .finca(finca)
                 .tecnicoUsuarioId(tecnicoUsuarioId)
-                .tecnicoNombre(tecnicoNombre)
+                .tecnicoNombre(nombreSeguro)
                 .tecnicoEmail(tecnicoEmail)
                 .fechaInicio(LocalDateTime.now())
                 .estado(EstadoSupervision.ACTIVA)

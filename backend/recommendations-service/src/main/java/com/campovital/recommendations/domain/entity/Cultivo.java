@@ -45,4 +45,7 @@ public class Cultivo extends BaseEntity {
     @Builder.Default
     @Column(nullable = false)
     private Boolean activo = true;
+
+    @Column(name = "agro_id", unique = true)
+    private Long agroId;
 }

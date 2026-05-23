@@ -33,6 +33,7 @@ import TecnicoFincasDisponiblesPage from './pages/TecnicoFincasDisponiblesPage';
 import TecnicoMisFincasPage from './pages/TecnicoMisFincasPage';
 import ActividadFormPage from './pages/ActividadFormPage';
 import HistorialFincaPage from './pages/HistorialFincaPage';
+import RecomendacionFormPage from './pages/RecomendacionFormPage';
 
 function Layout({ children }) {
   return (
@@ -77,6 +78,7 @@ export default function App() {
 
         {/* Otros módulos */}
         <Route path="/recomendaciones" element={<ProtectedRoute><Layout><RecomendacionesPage /></Layout></ProtectedRoute>} />
+        <Route path="/recomendaciones/nueva" element={<ProtectedRoute roles={['TECNICO', 'ADMIN']}><Layout><RecomendacionFormPage /></Layout></ProtectedRoute>} />
         <Route path="/alertas" element={<ProtectedRoute><Layout><AlertasPage /></Layout></ProtectedRoute>} />
         <Route path="/reportes" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN']}><Layout><ReportesPage /></Layout></ProtectedRoute>} />
         <Route path="/parametros" element={<ProtectedRoute roles={['ADMIN']}><Layout><ParametrosPage /></Layout></ProtectedRoute>} />

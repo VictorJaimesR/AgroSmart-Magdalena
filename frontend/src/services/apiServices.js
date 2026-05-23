@@ -54,6 +54,11 @@ export const recomendacionService = {
   obtener: (id) => api.get(`/recomendaciones/${id}`),
   crear: (data) => api.post('/recomendaciones', data),
   aplicar: (id, obs) => api.patch(`/recomendaciones/${id}/aplicar?observaciones=${obs || ''}`),
+  listarPorCultivos: (cultivoIds, page = 0) => {
+    const params = new URLSearchParams({ page, size: 20 });
+    cultivoIds.forEach(id => params.append('cultivoIds', id));
+    return api.get(`/recomendaciones/mis-cultivos?${params}`);
+  },
 };
 
 export const alertaService = {
@@ -70,8 +75,8 @@ export const reporteService = {
   obtener: (id) => api.get(`/reportes/${id}`),
   generar: (productorId, data) => api.post(`/reportes/productor/${productorId}`, data),
   /* Exports (CSV) - Retornan el contenido en texto */
-  exportarProduccionCsv: (productorId) => api.get(`/reportes/produccion-csv${productorId ? '?productorId='+productorId : ''}`, { responseType: 'blob' }),
-  exportarInventarioCsv: (fincaId) => api.get(`/reportes/inventario-cultivos-csv${fincaId ? '?fincaId='+fincaId : ''}`, { responseType: 'blob' }),
+  exportarProduccionCsv: (productorId) => api.get(`/reportes/produccion-csv${productorId ? '?productorId=' + productorId : ''}`, { responseType: 'blob' }),
+  exportarInventarioCsv: (fincaId) => api.get(`/reportes/inventario-cultivos-csv${fincaId ? '?fincaId=' + fincaId : ''}`, { responseType: 'blob' }),
   exportarAlertasCsv: () => api.get(`/reportes/alertas-historial-csv`, { responseType: 'blob' }),
 };
 

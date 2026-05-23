@@ -29,7 +29,7 @@ public class Finca extends BaseEntity {
     private String nombre;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "productor_id", nullable = false)
+    @JoinColumn(name = "productor_id")
     private Productor productor;
 
     @Builder.Default

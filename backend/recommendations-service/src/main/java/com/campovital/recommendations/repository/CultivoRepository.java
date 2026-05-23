@@ -10,9 +10,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CultivoRepository extends JpaRepository<Cultivo, Long> {
+
+    // Buscar por el ID original del agro-service
+    Optional<Cultivo> findByAgroId(Long agroId);
 
     Page<Cultivo> findByParcelaIdAndActivoTrue(Long parcelaId, Pageable pageable);
 

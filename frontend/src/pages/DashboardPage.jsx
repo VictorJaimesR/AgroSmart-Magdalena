@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { dashboardService, alertaService, fincaService, cultivoService } from '../services/apiServices';
-import { LoadingSpinner } from '../components/UIComponents';
+import { dashboardService, alertaService, fincaService, cultivoService, recomendacionService } from '../services/apiServices'; import { LoadingSpinner } from '../components/UIComponents';
 
 export default function DashboardPage() {
   const { user, isAdmin, isProductor, isTecnico } = useAuth();
@@ -53,6 +52,23 @@ export default function DashboardPage() {
         }
       }
 
+      // Contar recomendaciones pendientes
+      let recomendacionesPendientes = 0;
+      if (user?.productorId) {
+        try {
+          const cultivosRes = await cultivoService.listarPorProductor(user.productorId, 0);
+          const cultivos = cultivosRes.data?.datos?.content || [];
+          const cultivoIds = cultivos.map(c => c.id);
+          if (cultivoIds.length > 0) {
+            const recoRes = await recomendacionService.listarPorCultivos(cultivoIds, 0);
+            const todasReco = recoRes.data?.datos?.content || [];
+            recomendacionesPendientes = todasReco.filter(r => !r.aplicada).length;
+          }
+        } catch (err) {
+          console.error('Error loading recomendaciones:', err);
+        }
+      }
+
       try {
         let res;
 
@@ -80,6 +96,7 @@ export default function DashboardPage() {
           ...res.data?.datos,
           totalFincas,
           cultivosActivos,
+          recomendacionesPendientes,
           syncPendientes: (res.data?.datos?.syncPendientes || 0) + pending,
         }));
       } catch (err) {

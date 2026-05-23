@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,8 +7,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    logout();
+  }, [logout]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,7 +22,12 @@ export default function LoginPage() {
       await login(email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al iniciar sesión. Verifique sus credenciales.');
+      const status = err.response?.status;
+      if (!err.response || status >= 500) {
+        setError('No se pudo conectar con el servicio de autenticacion. Verifica que los microservicios esten levantados.');
+      } else {
+        setError(err.response?.data?.mensaje || 'Credenciales invalidas. Verifique su correo y contrasena.');
+      }
     } finally { setLoading(false); }
   };
 

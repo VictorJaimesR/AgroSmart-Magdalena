@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { offlineService } from '../services/offlineService';
+import { getStoredAuthToken, getStoredAuthUser } from '../services/authStorage';
 
 const API_BASE = '/api';
 
@@ -11,35 +12,30 @@ const api = axios.create({
 
 // Interceptor: agregar JWT a cada request
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('agrosmart_token');
+  const token = getStoredAuthToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  // Agregar usuarioId si está disponible
-  const user = localStorage.getItem('agrosmart_user');
-  if (user) {
-    try {
-      const userData = JSON.parse(user);
-      if (userData.id) {
-        config.headers['X-User-Id'] = userData.id;
-      }
-      if (userData.email) {
-        config.headers['X-User-Email'] = userData.email;
-      }
-      if (userData.nombreCompleto) {
-        config.headers['X-User-Name'] = userData.nombreCompleto;
-      }
-    } catch (e) {
-      // Ignorar error de parse
-    }
+
+  // Agregar usuarioId si esta disponible
+  const userData = getStoredAuthUser();
+  if (userData?.id) {
+    config.headers['X-User-Id'] = userData.id;
   }
+  if (userData?.email) {
+    config.headers['X-User-Email'] = userData.email;
+  }
+  if (userData?.nombreCompleto) {
+    config.headers['X-User-Name'] = userData.nombreCompleto;
+  }
+
   return config;
 });
 
 // Interceptor: manejar errores y cache
 api.interceptors.response.use(
   (response) => {
-    // Cachear automáticamente todas las respuestas GET exitosas
+    // Cachear automaticamente todas las respuestas GET exitosas
     if (response.config.method === 'get') {
       offlineService.cacheData(response.config.url, response.data);
     }

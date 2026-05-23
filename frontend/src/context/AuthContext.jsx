@@ -1,20 +1,22 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/apiServices';
+import {
+  clearAuthStorage,
+  clearLegacyAuthStorage,
+  getStoredAuthUser,
+  saveAuthSession,
+} from '../services/authStorage';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('agrosmart_user')); }
-    catch { return null; }
-  });
+  const [user, setUser] = useState(() => getStoredAuthUser());
   const [loading, setLoading] = useState(false);
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
     const handleUnauthorized = () => {
-      localStorage.removeItem('agrosmart_token');
-      localStorage.removeItem('agrosmart_user');
+      clearAuthStorage();
       setUser(null);
     };
     window.addEventListener('auth:unauthorized', handleUnauthorized);
@@ -23,20 +25,25 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     try {
-      const token = localStorage.getItem('agrosmart_token');
-      const userData = localStorage.getItem('agrosmart_user');
-      if (token && userData) {
-        const parsed = JSON.parse(userData);
-        const hasProductorRole = parsed.roles && (parsed.roles.includes('ROLE_AGRICULTOR') || parsed.roles.includes('AGRICULTOR'));
-        if (hasProductorRole && !parsed.productorId) {
-          localStorage.removeItem('agrosmart_token');
-          localStorage.removeItem('agrosmart_user');
-          setUser(null);
-        }
+      clearLegacyAuthStorage();
+
+      const parsed = getStoredAuthUser();
+      if (!parsed) {
+        clearAuthStorage();
+        setUser(null);
+        return;
       }
+
+      const hasProductorRole = parsed.roles && (parsed.roles.includes('ROLE_AGRICULTOR') || parsed.roles.includes('AGRICULTOR'));
+      if (hasProductorRole && !parsed.productorId) {
+        clearAuthStorage();
+        setUser(null);
+        return;
+      }
+
+      setUser(parsed);
     } catch {
-      localStorage.removeItem('agrosmart_token');
-      localStorage.removeItem('agrosmart_user');
+      clearAuthStorage();
       setUser(null);
     } finally {
       setInitializing(false);
@@ -48,8 +55,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await authService.login(email, password);
       const { token, ...userData } = res.data.datos;
-      localStorage.setItem('agrosmart_token', token);
-      localStorage.setItem('agrosmart_user', JSON.stringify(userData));
+      saveAuthSession(token, userData);
       setUser(userData);
       return userData;
     } finally { setLoading(false); }
@@ -60,16 +66,14 @@ export function AuthProvider({ children }) {
     try {
       const res = await authService.register(data);
       const { token, ...userData } = res.data.datos;
-      localStorage.setItem('agrosmart_token', token);
-      localStorage.setItem('agrosmart_user', JSON.stringify(userData));
+      saveAuthSession(token, userData);
       setUser(userData);
       return userData;
     } finally { setLoading(false); }
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('agrosmart_token');
-    localStorage.removeItem('agrosmart_user');
+    clearAuthStorage();
     setUser(null);
   }, []);
 

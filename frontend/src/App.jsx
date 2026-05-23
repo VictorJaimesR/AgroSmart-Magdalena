@@ -45,7 +45,7 @@ function Layout({ children }) {
 }
 
 export default function App() {
-  const { isAuthenticated, initializing } = useAuth();
+  const { initializing } = useAuth();
   const { isOnline, showBanner } = useOnlineStatus();
   const { toasts } = useToast();
 
@@ -55,7 +55,7 @@ export default function App() {
     <>
       <Routes>
         {/* Rutas públicas */}
-        <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
         {/* Rutas protegidas */}

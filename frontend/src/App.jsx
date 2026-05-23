@@ -31,6 +31,8 @@ import AdminFincaDetallePage from './pages/AdminFincaDetallePage';
 import TecnicoProductoresPage from './pages/TecnicoProductoresPage';
 import TecnicoFincasDisponiblesPage from './pages/TecnicoFincasDisponiblesPage';
 import TecnicoMisFincasPage from './pages/TecnicoMisFincasPage';
+import ActividadFormPage from './pages/ActividadFormPage';
+import HistorialFincaPage from './pages/HistorialFincaPage';
 
 function Layout({ children }) {
   return (
@@ -69,7 +71,7 @@ export default function App() {
 
         {/* Cultivos */}
         <Route path="/cultivos" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN', 'TECNICO']}><Layout><CultivosPage /></Layout></ProtectedRoute>} />
-        <Route path="/cultivos/nuevo" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN']}><Layout><CultivoFormPage /></Layout></ProtectedRoute>} />
+        <Route path="/cultivos/nuevo" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN', 'TECNICO']}><Layout><CultivoFormPage /></Layout></ProtectedRoute>} />
         <Route path="/cultivos/:id" element={<ProtectedRoute><Layout><CultivoFormPage /></Layout></ProtectedRoute>} />
         <Route path="/cultivos/:id/editar" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN', 'TECNICO']}><Layout><CultivoFormPage /></Layout></ProtectedRoute>} />
 
@@ -86,6 +88,10 @@ export default function App() {
         <Route path="/productores" element={<ProtectedRoute roles={['TECNICO']}><Layout><TecnicoProductoresPage /></Layout></ProtectedRoute>} />
         <Route path="/tecnico/fincas-disponibles" element={<ProtectedRoute roles={['TECNICO']}><Layout><TecnicoFincasDisponiblesPage /></Layout></ProtectedRoute>} />
         <Route path="/tecnico/mis-fincas" element={<ProtectedRoute roles={['TECNICO']}><Layout><TecnicoMisFincasPage /></Layout></ProtectedRoute>} />
+
+        {/* Trazabilidad de actividades */}
+        <Route path="/actividades/registrar" element={<ProtectedRoute roles={['AGRICULTOR', 'TECNICO', 'ADMIN']}><Layout><ActividadFormPage /></Layout></ProtectedRoute>} />
+        <Route path="/actividades/finca/:fincaId" element={<ProtectedRoute roles={['AGRICULTOR', 'TECNICO', 'ADMIN']}><Layout><HistorialFincaPage /></Layout></ProtectedRoute>} />
 
         {/* Default / Welcome */}
         <Route path="/" element={<WelcomePage />} />

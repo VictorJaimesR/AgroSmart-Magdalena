@@ -83,8 +83,8 @@ export default function Navbar() {
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className={`nav-link ${isActive('/cultivos')}`} to="/cultivos">
-                    <i className="bi bi-flower1 me-1"></i>Cultivos
+                  <Link className={`nav-link ${isActive('/actividades')}`} to="/actividades/registrar">
+                    <i className="bi bi-journal-check me-1"></i>Actividades
                   </Link>
                 </li>
                 <li className="nav-item">
@@ -111,6 +111,11 @@ export default function Navbar() {
                 <li className="nav-item">
                   <Link className={`nav-link ${isActive('/cultivos')}`} to="/cultivos">
                     <i className="bi bi-flower1 me-1"></i>Cultivos
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className={`nav-link ${isActive('/actividades')}`} to="/actividades/registrar">
+                    <i className="bi bi-journal-check me-1"></i>Actividades
                   </Link>
                 </li>
                 <li className="nav-item">

@@ -102,3 +102,15 @@ export const supervisionService = {
   listarMisFincas: () => api.get('/supervisiones/mis-fincas'),
   finalizar: (supervisionId) => api.put(`/supervisiones/${supervisionId}/finalizar`),
 };
+
+export const actividadService = {
+  registrar: (data) => api.post('/actividades', data),
+  listarPorFinca: (fincaId, page = 0, tipo = null) => {
+    const params = new URLSearchParams({ page, size: 20 });
+    if (tipo) params.append('tipo', tipo);
+    return api.get(`/actividades/finca/${fincaId}?${params}`);
+  },
+  listarPorCultivo: (cultivoId, page = 0) => api.get(`/actividades/cultivo/${cultivoId}?page=${page}&size=20`),
+  resumenPorFinca: (fincaId) => api.get(`/actividades/finca/${fincaId}/resumen`),
+};
+

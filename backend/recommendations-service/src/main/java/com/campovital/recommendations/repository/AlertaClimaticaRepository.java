@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -16,10 +17,19 @@ public interface AlertaClimaticaRepository extends JpaRepository<AlertaClimatica
 
     Page<AlertaClimatica> findByActivaTrue(Pageable pageable);
 
-    Page<AlertaClimatica> findByTipoAndActivaTrue(TipoAlerta tipo, Pageable pageable);
+    Page<AlertaClimatica> findAllByOrderByFechaEmisionDesc(Pageable pageable);
 
-    @Query("SELECT a FROM AlertaClimatica a JOIN a.municipiosAfectados m WHERE m = :municipio AND a.activa = true")
+    @Query("SELECT a FROM AlertaClimatica a WHERE a.activa = true " +
+            "AND :municipio MEMBER OF a.municipiosAfectados")
     List<AlertaClimatica> findActivasByMunicipio(@Param("municipio") String municipio);
 
-    Page<AlertaClimatica> findAllByOrderByFechaEmisionDesc(Pageable pageable);
+    @Query("SELECT COUNT(a) > 0 FROM AlertaClimatica a " +
+            "WHERE :municipio MEMBER OF a.municipiosAfectados " +
+            "AND a.tipo = :tipo " +
+            "AND a.fechaEmision >= :desde " +
+            "AND a.activa = true")
+    boolean existeAlertaReciente(
+            @Param("municipio") String municipio,
+            @Param("tipo") TipoAlerta tipo,
+            @Param("desde") LocalDateTime desde);
 }

@@ -9,14 +9,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * Representa una operación de sincronización offline.
- * Cuando un usuario trabaja sin conexión, las operaciones se almacenan
- * localmente y luego se sincronizan con el servidor.
- *
- * Almacena el JSON completo de la operación pendiente con metadata
- * de la entidad destino (tabla, acción CRUD).
- */
 @Entity
 @Table(name = "sincronizaciones_offline")
 @Getter
@@ -26,9 +18,18 @@ import java.time.LocalDateTime;
 @Builder
 public class SincronizacionOffline extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
+    // Guardamos solo el ID del usuario (viene del gateway via header X-User-Id)
+    // No usamos @ManyToOne para no acoplar este microservicio a la tabla usuarios
+    @NotNull
+    @Column(name = "usuario_id", nullable = false)
+    private Long usuarioId;
+
+    @Size(max = 80)
+    @Column(name = "client_id", length = 80)
+    private String clientId;
+
+    @Column(name = "server_id")
+    private Long serverId;
 
     @NotBlank
     @Size(max = 50)

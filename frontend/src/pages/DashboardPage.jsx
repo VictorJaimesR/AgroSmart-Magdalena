@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { dashboardService, alertaService, fincaService, cultivoService, recomendacionService } from '../services/apiServices';
 import { LoadingSpinner } from '../components/UIComponents';
+import { offlineService } from '../services/offlineService';
 
 export default function DashboardPage() {
   const { user, isAdmin, isProductor, isTecnico } = useAuth();
@@ -95,10 +96,7 @@ export default function DashboardPage() {
 
         let pending = 0;
         if (!isAdmin()) {
-          try {
-            const localQueue = JSON.parse(localStorage.getItem('agrosmart_pending_ops') || '[]');
-            pending = localQueue.length;
-          } catch { pending = 0; }
+          pending = offlineService.getPendingCount();
         }
 
         setStats(s => ({
@@ -270,6 +268,15 @@ export default function DashboardPage() {
                 </Link>
               </div>
             )}
+
+              <div className="col-6 col-md-3">
+                <Link to="/fincas" className="btn btn-agro-outline w-100 d-flex flex-column align-items-center py-3">
+                  <i className="bi bi-clock-history fs-4 mb-1"></i>
+                  <small>Ver Historial</small>
+               </Link>
+              </div>
+
+
             <div className="col-6 col-md-3">
               <Link to="/alertas" className="btn btn-agro-outline w-100 d-flex flex-column align-items-center py-3">
                 <i className="bi bi-cloud-sun fs-4 mb-1"></i>

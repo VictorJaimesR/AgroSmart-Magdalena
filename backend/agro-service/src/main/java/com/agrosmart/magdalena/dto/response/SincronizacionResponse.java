@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class SincronizacionResponse {
     private Long id;
+    private String clientId;
+    private String localId;
+    private Long serverId;
     private String entidad;
     private String accion;
     private String estado;

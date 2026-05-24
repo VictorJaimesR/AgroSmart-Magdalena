@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { fincaService, cultivoService, actividadService, supervisionService } from '../services/apiServices';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import { useOnlineStatus, usePendingOps } from '../hooks/useAppHooks';
 
 const TIPOS_ACTIVIDAD = [
   { value: 'RIEGO', label: 'Riego', icon: '💧', unidades: ['litros', 'm³', 'horas'], usaProducto: false },
@@ -28,6 +29,8 @@ export default function ActividadFormPage() {
   const location = useLocation();
   const { addToast } = useToast();
   const { user, isProductor, isTecnico } = useAuth();
+  const { isOnline } = useOnlineStatus();
+  const { addOp } = usePendingOps();
 
   // Pre-selección desde query params (?fincaId=X&cultivoId=Y)
   const params = new URLSearchParams(location.search);
@@ -123,7 +126,7 @@ export default function ActividadFormPage() {
     }
     setSubmitting(true);
     try {
-      await actividadService.registrar({
+      const payload = {
         fincaId: Number(form.fincaId),
         cultivoId: Number(form.cultivoId),
         tipoActividad: form.tipoActividad,
@@ -132,7 +135,16 @@ export default function ActividadFormPage() {
         producto: form.producto || null,
         observaciones: form.observaciones || null,
         fechaActividad: form.fechaActividad,  // ISO string
-      });
+      };
+
+      if (!isOnline) {
+        addOp({ entidad: 'ACTIVIDAD', accion: 'CREATE', data: payload });
+        addToast('Actividad registrada (pendiente de sincronizar)', 'warning');
+        navigate(`/actividades/finca/${form.fincaId}`);
+        return;
+      }
+
+      await actividadService.registrar(payload);
       addToast('✅ Actividad registrada exitosamente', 'success');
       navigate(`/actividades/finca/${form.fincaId}`);
     } catch (err) {
@@ -157,6 +169,7 @@ export default function ActividadFormPage() {
 
       <div className="card card-agro">
         <div className="card-body p-3 p-md-4">
+          {!isOnline && <div className="alert alert-warning py-2 small"><i className="bi bi-wifi-off me-1"></i>Sin conexión — Se guardará localmente</div>}
           {loadingFincas ? (
             <div className="text-center py-4">
               <span className="spinner-border spinner-border-sm me-2"></span>Cargando fincas...

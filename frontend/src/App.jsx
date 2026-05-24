@@ -67,8 +67,8 @@ export default function App() {
         <Route path="/fincas" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN']}><Layout><FincasPage /></Layout></ProtectedRoute>} />
         <Route path="/fincas/nueva" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN']}><Layout><FincaFormPage /></Layout></ProtectedRoute>} />
         <Route path="/fincas/:id" element={<ProtectedRoute><Layout><FincaFormPage /></Layout></ProtectedRoute>} />
-        <Route path="/fincas/:id/editar" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN']}><Layout><FincaFormPage /></Layout></ProtectedRoute>} />
-        <Route path="/fincas/:id/parcelas" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN']}><Layout><ParcelasFincaPage /></Layout></ProtectedRoute>} />
+        <Route path="/fincas/:id/editar" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN', 'TECNICO']}><Layout><FincaFormPage /></Layout></ProtectedRoute>} />
+        <Route path="/fincas/:id/parcelas" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN', 'TECNICO']}><Layout><ParcelasFincaPage /></Layout></ProtectedRoute>} />
 
         {/* Cultivos */}
         <Route path="/cultivos" element={<ProtectedRoute roles={['AGRICULTOR', 'ADMIN', 'TECNICO']}><Layout><CultivosPage /></Layout></ProtectedRoute>} />

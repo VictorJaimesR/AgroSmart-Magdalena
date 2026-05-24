@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SincronizacionRequest {
 
+    @Size(max = 80)
+    private String clientId;
+
     @NotBlank(message = "La entidad es obligatoria")
     @Size(max = 50)
     private String entidad;

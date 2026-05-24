@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "Sincronización Offline", description = "Gestión de operaciones pendientes de sincronización")
 @RestController
@@ -26,31 +28,45 @@ public class SincronizacionOfflineController {
     @Operation(summary = "Registrar operación offline para sincronización")
     @PostMapping("/push")
     public ResponseEntity<ApiResponse<SincronizacionResponse>> push(
-            @Valid @RequestBody SincronizacionRequest request, Authentication auth) {
-        SincronizacionResponse response = syncService.registrar(request, auth.getName());
+            @Valid @RequestBody SincronizacionRequest request,
+            @RequestHeader("X-User-Id") Long usuarioId,
+            @RequestHeader("X-User-Email") String email,
+            @RequestHeader(value = "X-User-Role", defaultValue = "AGRICULTOR") String rol) {
+        SincronizacionResponse response = syncService.registrar(request, usuarioId, email, rol);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(response));
     }
 
     @Operation(summary = "Enviar lote de operaciones offline y procesarlas")
     @PostMapping("/push-batch")
     public ResponseEntity<ApiResponse<List<SincronizacionResponse>>> pushBatch(
-            @Valid @RequestBody List<SincronizacionRequest> requests, Authentication auth) {
-        
+            @Valid @RequestBody List<SincronizacionRequest> requests,
+            @RequestHeader("X-User-Id") Long usuarioId,
+            @RequestHeader("X-User-Email") String email,
+            @RequestHeader(value = "X-User-Role", defaultValue = "AGRICULTOR") String rol) {
+
         // 1. Guardar encolados
-        requests.forEach(r -> syncService.registrar(r, auth.getName()));
-        
-        // 2. Ejecutar procesamiento atado a la estrategia Server Wins
-        // Como sabemos el email, buscamos el usuario via un método auxiliar de procesar o le pasamos el email
-        List<SincronizacionResponse> responses = syncService.procesarPendientesPorEmail(auth.getName());
-        
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(responses));
+        List<SincronizacionResponse> registrados = requests.stream()
+                .map(r -> syncService.registrar(r, usuarioId, email, rol))
+                .toList();
+
+        // 2. Procesar pendientes usando el usuarioId directamente
+        List<SincronizacionResponse> procesados = syncService.procesarPendientes(usuarioId, email, rol);
+
+        Map<String, SincronizacionResponse> responses = new LinkedHashMap<>();
+        registrados.forEach(r -> responses.put(responseKey(r), r));
+        procesados.forEach(r -> responses.put(responseKey(r), r));
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.created(List.copyOf(responses.values())));
     }
 
     @Operation(summary = "Procesar operaciones pendientes de un usuario")
     @PostMapping("/process/{usuarioId}")
     public ResponseEntity<ApiResponse<List<SincronizacionResponse>>> procesar(
-            @PathVariable Long usuarioId) {
-        List<SincronizacionResponse> results = syncService.procesarPendientes(usuarioId);
+            @PathVariable Long usuarioId,
+            @RequestHeader("X-User-Email") String email,
+            @RequestHeader(value = "X-User-Role", defaultValue = "AGRICULTOR") String rol) {
+        List<SincronizacionResponse> results = syncService.procesarPendientes(usuarioId, email, rol);
         return ResponseEntity.ok(ApiResponse.ok("Sincronización completada", results));
     }
 
@@ -59,5 +75,9 @@ public class SincronizacionOfflineController {
     public ResponseEntity<ApiResponse<List<SincronizacionResponse>>> listarPendientes(
             @PathVariable Long usuarioId) {
         return ResponseEntity.ok(ApiResponse.ok(syncService.listarPendientes(usuarioId)));
+    }
+
+    private String responseKey(SincronizacionResponse response) {
+        return response.getClientId() != null ? response.getClientId() : "sync-" + response.getId();
     }
 }

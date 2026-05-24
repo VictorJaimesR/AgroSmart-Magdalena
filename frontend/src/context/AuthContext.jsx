@@ -6,6 +6,7 @@ import {
   getStoredAuthUser,
   saveAuthSession,
 } from '../services/authStorage';
+import { offlineService } from '../services/offlineService';
 
 const AuthContext = createContext(null);
 
@@ -29,6 +30,7 @@ export function AuthProvider({ children }) {
 
       const parsed = getStoredAuthUser();
       if (!parsed) {
+        offlineService.setUserScope(null);
         clearAuthStorage();
         setUser(null);
         return;
@@ -36,13 +38,16 @@ export function AuthProvider({ children }) {
 
       const hasProductorRole = parsed.roles && (parsed.roles.includes('ROLE_AGRICULTOR') || parsed.roles.includes('AGRICULTOR'));
       if (hasProductorRole && !parsed.productorId) {
+        offlineService.setUserScope(null);
         clearAuthStorage();
         setUser(null);
         return;
       }
 
+      offlineService.setUserScope(parsed.id);
       setUser(parsed);
     } catch {
+      offlineService.setUserScope(null);
       clearAuthStorage();
       setUser(null);
     } finally {
@@ -56,6 +61,7 @@ export function AuthProvider({ children }) {
       const res = await authService.login(email, password);
       const { token, ...userData } = res.data.datos;
       saveAuthSession(token, userData);
+      offlineService.setUserScope(userData.id);
       setUser(userData);
       return userData;
     } finally { setLoading(false); }
@@ -67,6 +73,7 @@ export function AuthProvider({ children }) {
       const res = await authService.register(data);
       const { token, ...userData } = res.data.datos;
       saveAuthSession(token, userData);
+      offlineService.setUserScope(userData.id);
       setUser(userData);
       return userData;
     } finally { setLoading(false); }
@@ -74,6 +81,7 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(() => {
     clearAuthStorage();
+    offlineService.setUserScope(null);
     setUser(null);
   }, []);
 

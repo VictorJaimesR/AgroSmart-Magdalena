@@ -105,7 +105,8 @@ export default function FincaFormPage() {
     const data = { ...form, areaTotal: area, latitud: lat, longitud: lng };
 
     if (!isOnline) {
-      addOp({ entidad: 'FINCA', accion: isEdit ? 'UPDATE' : 'CREATE', datosJson: JSON.stringify(data) });
+      addOp({ entidad: 'FINCA', accion: isEdit ? 'UPDATE' : 'CREATE', data: isEdit ? { ...data, id } : data });
+      addToast(`Finca ${isEdit ? 'actualizada' : 'creada'} (pendiente de sincronizar)`, 'warning');
       navigate('/fincas');
       return;
     }

@@ -77,10 +77,9 @@ class CultivoServiceTest {
         request.setVariedad("CCN-51");
         request.setParcelaId(1L);
         request.setFechaSiembra(LocalDate.of(2025, 3, 1));
-        request.setAreaUtilizada(2.0);
+        request.setAreaUtilizada(5.0);
 
         when(parcelaRepository.findById(1L)).thenReturn(Optional.of(parcela));
-        when(cultivoRepository.sumAreaUtilizadaByParcelaId(1L)).thenReturn(3.0);
         when(cultivoRepository.save(any(Cultivo.class))).thenAnswer(inv -> {
             Cultivo c = inv.getArgument(0);
             c.setId(2L);
@@ -110,7 +109,7 @@ class CultivoServiceTest {
     }
 
     @Test
-    @DisplayName("Crear cultivo falla si área excede parcela")
+    @DisplayName("Crear cultivo falla si area no coincide con parcela")
     void crearCultivo_areaExcede() {
         CultivoRequest request = new CultivoRequest();
         request.setNombre("Test");
@@ -119,11 +118,10 @@ class CultivoServiceTest {
         request.setAreaUtilizada(10.0); // Excede 5.0 de parcela
 
         when(parcelaRepository.findById(1L)).thenReturn(Optional.of(parcela));
-        when(cultivoRepository.sumAreaUtilizadaByParcelaId(1L)).thenReturn(0.0);
 
         assertThatThrownBy(() -> cultivoService.crear(request))
                 .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("excede");
+                .hasMessageContaining("debe ser igual");
     }
 
     @Test

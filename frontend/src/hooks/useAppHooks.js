@@ -1,7 +1,25 @@
 import { useState, useEffect, useCallback } from 'react';
 import { offlineService } from '../services/offlineService';
 
-import { authService, syncService } from '../services/apiServices';
+import { syncService } from '../services/apiServices';
+
+let autoSyncInProgress = false;
+
+async function syncPendingOps() {
+  if (autoSyncInProgress) return;
+
+  const pending = offlineService.getPendingOps();
+  if (pending.length === 0) return;
+
+  autoSyncInProgress = true;
+  try {
+    const batch = offlineService.buildSyncBatch(pending);
+    const res = await syncService.pushBatch(batch);
+    offlineService.applySyncResults(res.data?.datos || []);
+  } finally {
+    autoSyncInProgress = false;
+  }
+}
 
 /** Hook para detectar estado de conectividad y auto-sincronizar */
 export function useOnlineStatus() {
@@ -15,18 +33,8 @@ export function useOnlineStatus() {
       setTimeout(() => setShowBanner(false), 3000);
       
       // Auto-reintento
-      const pending = offlineService.getPendingOps();
-      if (pending.length > 0) {
-        try {
-          const batch = pending.map((o) => ({
-            entidad: o.entidad,
-            accion: o.accion,
-            datosJson: o.datosJson,
-          }));
-          await syncService.pushBatch(batch);
-          offlineService.clearPendingOps();
-        } catch (e) { console.error('Auto-sync failed', e); }
-      }
+      try { await syncPendingOps(); }
+      catch (e) { console.error('Auto-sync failed', e); }
     };
     const handleOffline = () => { setIsOnline(false); setShowBanner(true); };
 

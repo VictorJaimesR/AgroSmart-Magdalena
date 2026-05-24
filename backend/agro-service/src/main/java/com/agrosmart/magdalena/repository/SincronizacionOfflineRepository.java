@@ -8,11 +8,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SincronizacionOfflineRepository extends JpaRepository<SincronizacionOffline, Long> {
 
     List<SincronizacionOffline> findByUsuarioIdAndEstado(Long usuarioId, EstadoSincronizacion estado);
+
+    List<SincronizacionOffline> findByUsuarioIdAndEstadoOrderByCreatedAtAscIdAsc(Long usuarioId, EstadoSincronizacion estado);
+
+    Optional<SincronizacionOffline> findByUsuarioIdAndClientId(Long usuarioId, String clientId);
 
     Page<SincronizacionOffline> findByUsuarioId(Long usuarioId, Pageable pageable);
 

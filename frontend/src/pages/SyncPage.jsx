@@ -1,13 +1,12 @@
 import { usePendingOps, useOnlineStatus } from '../hooks/useAppHooks';
 import { syncService } from '../services/apiServices';
+import { offlineService } from '../services/offlineService';
 import { EmptyState } from '../components/UIComponents';
-import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 
 export default function SyncPage() {
   const { ops, removeOp, clearOps } = usePendingOps();
   const { isOnline } = useOnlineStatus();
-  const { user } = useAuth();
   const [syncing, setSyncing] = useState(false);
   const [result, setResult] = useState(null);
 
@@ -16,14 +15,14 @@ export default function SyncPage() {
     setSyncing(true);
     setResult(null);
     try {
-      const batch = ops.map((o) => ({
-        entidad: o.entidad,
-        accion: o.accion,
-        datosJson: o.datosJson,
-      }));
+      const batch = offlineService.buildSyncBatch(ops);
       const res = await syncService.pushBatch(batch);
-      clearOps();
-      setResult({ type: 'success', message: `${batch.length} operaciones sincronizadas correctamente` });
+      const summary = offlineService.applySyncResults(res.data?.datos || []);
+      const type = summary.failed > 0 ? 'error' : 'success';
+      const message = summary.failed > 0
+        ? `${summary.synced} operaciones sincronizadas, ${summary.failed} con error. Revisa los pendientes.`
+        : `${summary.synced} operaciones sincronizadas correctamente`;
+      setResult({ type, message });
     } catch (err) {
       setResult({ type: 'error', message: 'Error al sincronizar: ' + (err.response?.data?.mensaje || err.message) });
     } finally { setSyncing(false); }
@@ -78,6 +77,7 @@ export default function SyncPage() {
                     <div className="text-muted small mt-1">
                       <i className="bi bi-clock me-1"></i>{new Date(o.timestamp).toLocaleString('es-CO')}
                     </div>
+                    {o.lastError && <div className="text-danger small mt-1">{o.lastError}</div>}
                   </div>
                   <button className="btn btn-sm btn-outline-secondary" onClick={() => removeOp(o.id)}>
                     <i className="bi bi-x"></i>

@@ -4,6 +4,8 @@ import { cultivoService } from '../services/apiServices';
 import { useAuth } from '../context/AuthContext';
 import { offlineService } from '../services/offlineService';
 import { LoadingSpinner, EmptyState, ConfirmModal } from '../components/UIComponents';
+import { useOnlineStatus, usePendingOps } from '../hooks/useAppHooks';
+import { useToast } from '../context/ToastContext';
 
 const ESTADOS = {
   PLANIFICADO: { label: 'Planificado', class: 'planificado' },
@@ -23,13 +25,16 @@ export default function CultivosPage() {
   const [deleteId, setDeleteId] = useState(null);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isOnline } = useOnlineStatus();
+  const { addOp, removeOp, ops } = usePendingOps();
+  const { addToast } = useToast();
 
   useEffect(() => { loadCultivos(); loadPending(); }, [page]);
 
   const loadPending = () => {
     const ops = offlineService.getPendingOps();
     const creates = ops.filter(o => o.entidad === 'CULTIVO' && o.accion === 'CREATE')
-                      .map(o => ({...JSON.parse(o.datosJson), id: 'pending-'+o.id, isPending: true}));
+                      .map(o => ({...JSON.parse(o.datosJson), id: o.localId || `pending-${o.id}`, isPending: true}));
     setPendingCultivos(creates);
   };
 
@@ -50,7 +55,23 @@ export default function CultivosPage() {
   };
 
   const handleDelete = async () => {
-    try { await cultivoService.eliminar(deleteId); loadCultivos(); } catch {}
+    try {
+      if (!isOnline) {
+        const pendingCreate = ops.find((op) => op.entidad === 'CULTIVO' && op.accion === 'CREATE' && op.localId === deleteId);
+        if (pendingCreate) {
+          removeOp(pendingCreate.id);
+        } else {
+          addOp({ entidad: 'CULTIVO', accion: 'DELETE', data: { id: deleteId } });
+        }
+        setCultivos((prev) => prev.filter((c) => c.id !== deleteId));
+        addToast('Cultivo eliminado (pendiente de sincronizar)', 'warning');
+      } else {
+        await cultivoService.eliminar(deleteId);
+        loadCultivos();
+      }
+    } catch {
+      addToast('No se pudo eliminar el cultivo', 'error');
+    }
     setDeleteId(null);
   };
 

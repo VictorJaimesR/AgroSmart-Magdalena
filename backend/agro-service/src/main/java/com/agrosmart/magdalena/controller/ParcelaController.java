@@ -39,7 +39,7 @@ public class ParcelaController {
 
     @Operation(summary = "Crear nueva parcela")
     @PostMapping
-    @PreAuthorize("hasAnyRole('AGRICULTOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('AGRICULTOR', 'ADMIN', 'TECNICO')")
     public ResponseEntity<ApiResponse<ParcelaResponse>> crear(@Valid @RequestBody ParcelaRequest request) {
         ParcelaResponse response = parcelaService.crear(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.created(response));
@@ -47,7 +47,7 @@ public class ParcelaController {
 
     @Operation(summary = "Actualizar parcela")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('AGRICULTOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('AGRICULTOR', 'ADMIN', 'TECNICO')")
     public ResponseEntity<ApiResponse<ParcelaResponse>> actualizar(
             @PathVariable Long id, @Valid @RequestBody ParcelaRequest request) {
         return ResponseEntity.ok(ApiResponse.ok("Parcela actualizada", parcelaService.actualizar(id, request)));
@@ -55,7 +55,7 @@ public class ParcelaController {
 
     @Operation(summary = "Eliminar parcela (soft delete)")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('AGRICULTOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('AGRICULTOR', 'ADMIN', 'TECNICO')")
     public ResponseEntity<ApiResponse<Void>> eliminar(@PathVariable Long id) {
         parcelaService.eliminar(id);
         return ResponseEntity.ok(ApiResponse.ok("Parcela eliminada", null));

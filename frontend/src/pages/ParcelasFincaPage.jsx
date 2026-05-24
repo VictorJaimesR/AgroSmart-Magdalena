@@ -17,7 +17,7 @@ export default function ParcelasFincaPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isOnline } = useOnlineStatus();
-  const { addOp } = usePendingOps();
+  const { addOp, removeOp, ops } = usePendingOps();
   const { user } = useAuth();
   const { addToast } = useToast();
 
@@ -135,10 +135,10 @@ export default function ParcelasFincaPage() {
 
     try {
       if (!isOnline) {
-        addOp({
+        const queued = addOp({
           entidad: 'PARCELA',
           accion: editingParcela ? 'UPDATE' : 'CREATE',
-          datosJson: JSON.stringify(editingParcela ? { ...payload, id: editingParcela.id } : payload),
+          data: editingParcela ? { ...payload, id: editingParcela.id } : payload,
         });
 
         if (editingParcela) {
@@ -149,7 +149,7 @@ export default function ParcelasFincaPage() {
             ...prev,
             {
               ...payload,
-              id: `pending-${Date.now()}`,
+              id: queued.localId,
               estado: 'DISPONIBLE',
             },
           ]);
@@ -178,7 +178,12 @@ export default function ParcelasFincaPage() {
 
     try {
       if (!isOnline) {
-        addOp({ entidad: 'PARCELA', accion: 'DELETE', datosJson: JSON.stringify({ id: parcela.id, fincaId: id }) });
+        const pendingCreate = ops.find((op) => op.entidad === 'PARCELA' && op.accion === 'CREATE' && op.localId === parcela.id);
+        if (pendingCreate) {
+          removeOp(pendingCreate.id);
+        } else {
+          addOp({ entidad: 'PARCELA', accion: 'DELETE', data: { id: parcela.id, fincaId: id } });
+        }
         setParcelas((prev) => prev.filter((p) => p.id !== parcela.id));
         addToast('Parcela eliminada (pendiente de sincronizar)', 'warning');
       } else {

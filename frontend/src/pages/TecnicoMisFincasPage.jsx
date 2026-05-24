@@ -40,7 +40,7 @@ export default function TecnicoMisFincasPage() {
       <div className="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
           <h2><i className="bi bi-briefcase me-2"></i>Mis fincas supervisadas</h2>
-          <p className="text-muted mb-0">Supervisiones activas — puedes registrar actividades y ver el historial</p>
+          <p className="text-muted mb-0">Supervisiones activas — gestiona parcelas, cultivos y actividades</p>
         </div>
         <Link to="/actividades/registrar" className="btn btn-agro">
           <i className="bi bi-journal-plus me-1"></i>Registrar actividad
@@ -63,13 +63,13 @@ export default function TecnicoMisFincasPage() {
             </div>
           ) : (
             <>
-              {/* Cards en mobile, tabla en desktop */}
+              {/* Cards mobile */}
               <div className="d-md-none">
                 {items.map(i => (
                   <div key={i.supervisionId} className="card mb-3 border shadow-sm">
                     <div className="card-body">
                       <h6 className="fw-bold mb-1">{i.fincaNombre}</h6>
-                      <div className="text-muted small mb-2">
+                      <div className="text-muted small mb-1">
                         {i.municipio && <span><i className="bi bi-geo-alt me-1"></i>{i.municipio} · </span>}
                         <span>{(parseFloat(i.areaTotal) || 0).toFixed(2)} ha</span>
                       </div>
@@ -79,22 +79,16 @@ export default function TecnicoMisFincasPage() {
                         </div>
                       )}
                       <div className="d-flex gap-2 flex-wrap mt-2">
-                        <Link
-                          to={`/actividades/registrar?fincaId=${i.fincaId}`}
-                          className="btn btn-sm btn-agro"
-                        >
-                          <i className="bi bi-journal-plus me-1"></i>Registrar actividad
+                        <Link to={`/fincas/${i.fincaId}/parcelas`} className="btn btn-sm btn-outline-primary">
+                          <i className="bi bi-grid-3x3-gap me-1"></i>Parcelas
                         </Link>
-                        <Link
-                          to={`/actividades/finca/${i.fincaId}`}
-                          className="btn btn-sm btn-agro-outline"
-                        >
+                        <Link to={`/actividades/finca/${i.fincaId}`} className="btn btn-sm btn-agro-outline">
                           <i className="bi bi-clock-history me-1"></i>Historial
                         </Link>
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleFinalizar(i.supervisionId)}
-                        >
+                        <button className="btn btn-sm btn-outline-secondary" onClick={() => setSelectedItem(i)}>
+                          Detalle
+                        </button>
+                        <button className="btn btn-sm btn-outline-danger" onClick={() => handleFinalizar(i.supervisionId)}>
                           Finalizar
                         </button>
                       </div>
@@ -103,6 +97,7 @@ export default function TecnicoMisFincasPage() {
                 ))}
               </div>
 
+              {/* Tabla desktop */}
               <div className="d-none d-md-block table-responsive">
                 <table className="table table-sm table-hover mb-0 align-middle">
                   <thead className="table-light">
@@ -126,28 +121,16 @@ export default function TecnicoMisFincasPage() {
                           {i.fechaInicio ? new Date(i.fechaInicio).toLocaleDateString('es-CO') : '-'}
                         </td>
                         <td className="text-end">
-                          <Link
-                            to={`/actividades/registrar?fincaId=${i.fincaId}`}
-                            className="btn btn-sm btn-agro me-1"
-                          >
-                            <i className="bi bi-journal-plus me-1"></i>Actividad
+                          <Link to={`/fincas/${i.fincaId}/parcelas`} className="btn btn-sm btn-outline-primary me-1">
+                            <i className="bi bi-grid-3x3-gap me-1"></i>Parcelas
                           </Link>
-                          <Link
-                            to={`/actividades/finca/${i.fincaId}`}
-                            className="btn btn-sm btn-agro-outline me-1"
-                          >
+                          <Link to={`/actividades/finca/${i.fincaId}`} className="btn btn-sm btn-agro-outline me-1">
                             <i className="bi bi-clock-history me-1"></i>Historial
                           </Link>
-                          <button
-                            className="btn btn-sm btn-outline-secondary me-1"
-                            onClick={() => setSelectedItem(i)}
-                          >
+                          <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => setSelectedItem(i)}>
                             Detalle
                           </button>
-                          <button
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleFinalizar(i.supervisionId)}
-                          >
+                          <button className="btn btn-sm btn-outline-danger" onClick={() => handleFinalizar(i.supervisionId)}>
                             Finalizar
                           </button>
                         </td>
@@ -202,6 +185,13 @@ export default function TecnicoMisFincasPage() {
                 </div>
               </div>
               <div className="modal-footer border-0 pt-0 gap-2">
+                <Link
+                  to={`/fincas/${selectedItem.fincaId}/parcelas`}
+                  className="btn btn-outline-primary"
+                  onClick={() => setSelectedItem(null)}
+                >
+                  <i className="bi bi-grid-3x3-gap me-1"></i>Parcelas
+                </Link>
                 <Link
                   to={`/actividades/registrar?fincaId=${selectedItem.fincaId}`}
                   className="btn btn-agro"

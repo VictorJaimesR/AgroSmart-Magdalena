@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { cultivoService, parcelaService, fincaService } from '../services/apiServices';
+import { cultivoService, parcelaService, fincaService, supervisionService } from '../services/apiServices';
 import { LoadingSpinner } from '../components/UIComponents';
 import { useAuth } from '../context/AuthContext';
+import { useOnlineStatus, usePendingOps } from '../hooks/useAppHooks';
+import { useToast } from '../context/ToastContext';
 
 export default function CultivoFormPage() {
   const { id } = useParams();
   const isEdit = !!id;
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isTecnico } = useAuth();
+  const { isOnline } = useOnlineStatus();
+  const { addOp } = usePendingOps();
+  const { addToast } = useToast();
 
   const [form, setForm] = useState({
     nombre: '',
@@ -49,19 +54,28 @@ export default function CultivoFormPage() {
   };
 
   const loadFincas = async () => {
-    try {
-      if (!user?.productorId) return [];
-
-      const res = await fincaService.listarPorProductor(user.productorId, 0);
-      const lista = res.data?.datos?.content || [];
-
+  try {
+    if (isTecnico()) {
+      const res = await supervisionService.listarMisFincas();
+      const lista = (res.data?.datos || []).map(s => ({
+        id: s.fincaId,
+        nombre: s.fincaNombre,
+        municipio: s.municipio,
+      }));
       setFincas(lista);
       return lista;
-    } catch (err) {
-      console.error('Error loading fincas:', err);
-      return [];
     }
-  };
+
+    if (!user?.productorId) return [];
+    const res = await fincaService.listarPorProductor(user.productorId, 0);
+    const lista = res.data?.datos?.content || [];
+    setFincas(lista);
+    return lista;
+  } catch (err) {
+    console.error('Error loading fincas:', err);
+    return [];
+  }
+};
 
   const loadParcelas = async (fincaId, currentParcelaId = '') => {
     if (!fincaId) {
@@ -225,10 +239,19 @@ export default function CultivoFormPage() {
       const data = {
         ...form,
         fincaId: selectedFinca,
+        fincaNombre: fincas.find((f) => String(f.id) === String(selectedFinca))?.nombre,
         parcelaId: form.parcelaId,
+        parcelaNombre: selectedParcela?.nombre,
         areaUtilizada: parsedArea,
         rendimientoEsperado: parsedRendimiento,
       };
+
+      if (!isOnline) {
+        addOp({ entidad: 'CULTIVO', accion: isEdit ? 'UPDATE' : 'CREATE', data: isEdit ? { ...data, id } : data });
+        addToast(`Cultivo ${isEdit ? 'actualizado' : 'creado'} (pendiente de sincronizar)`, 'warning');
+        navigate('/cultivos');
+        return;
+      }
 
       if (isEdit) await cultivoService.actualizar(id, data);
       else await cultivoService.crear(data);
@@ -256,6 +279,7 @@ export default function CultivoFormPage() {
       <div className="card card-agro">
         <div className="card-body p-3 p-md-4">
           {error && <div className="alert alert-danger py-2 small">{error}</div>}
+          {!isOnline && <div className="alert alert-warning py-2 small"><i className="bi bi-wifi-off me-1"></i>Sin conexión — Se guardará localmente</div>}
 
           <form onSubmit={handleSubmit}>
             <div className="row mb-3">

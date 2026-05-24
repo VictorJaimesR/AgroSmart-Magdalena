@@ -5,6 +5,7 @@ import { offlineService } from '../services/offlineService';
 import { LoadingSpinner, EmptyState, ConfirmModal } from '../components/UIComponents';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import { useOnlineStatus, usePendingOps } from '../hooks/useAppHooks';
 
 export default function FincasPage() {
   const [fincas, setFincas] = useState([]);
@@ -15,6 +16,8 @@ export default function FincasPage() {
   const [deleteId, setDeleteId] = useState(null);
   const { addToast } = useToast();
   const { user } = useAuth();
+  const { isOnline } = useOnlineStatus();
+  const { addOp } = usePendingOps();
   const navigate = useNavigate();
 
   useEffect(() => { loadFincas(); loadPending(); }, [page]);
@@ -22,7 +25,7 @@ export default function FincasPage() {
   const loadPending = () => {
     const ops = offlineService.getPendingOps();
     const creates = ops.filter(o => o.entidad === 'FINCA' && o.accion === 'CREATE')
-                      .map(o => ({...JSON.parse(o.datosJson), id: 'pending-'+o.id, isPending: true}));
+                      .map(o => ({...JSON.parse(o.datosJson), id: o.localId || `pending-${o.id}`, isPending: true}));
     setPendingFincas(creates);
   };
 
@@ -44,9 +47,17 @@ export default function FincasPage() {
 
   const handleDelete = async () => {
     try {
-      await fincaService.eliminar(deleteId);
-      loadFincas();
-    } catch {}
+      if (!isOnline) {
+        addOp({ entidad: 'FINCA', accion: 'DELETE', data: { id: deleteId } });
+        setFincas((prev) => prev.filter((f) => f.id !== deleteId));
+        addToast('Finca eliminada (pendiente de sincronizar)', 'warning');
+      } else {
+        await fincaService.eliminar(deleteId);
+        loadFincas();
+      }
+    } catch {
+      addToast('No se pudo eliminar la finca', 'error');
+    }
     setDeleteId(null);
   };
 
@@ -66,50 +77,56 @@ export default function FincasPage() {
         <>
           {/* Vista lista para móviles */}
           <div className="row g-3">
-            {[...pendingFincas, ...fincas].map((f) => (
-              <div key={f.id} className="col-12 col-md-6">
-                <div className="card card-agro h-100" onClick={() => navigate(`/fincas/${f.id}`)}>
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-start mb-2">
-                      <h6 className="fw-bold mb-0">{f.nombre}</h6>
-                      {f.isPending ? (
-                         <span className="badge bg-warning text-dark small"><i className="bi bi-clock me-1"></i>Pendiente</span>
-                      ) : (
-                         <span className="badge bg-success bg-opacity-10 text-success small">Activa</span>
-                      )}
+            {[...pendingFincas, ...fincas].map((f) => {
+              return (
+                <div key={f.id} className="col-12 col-md-6">
+                  <div className="card card-agro h-100" onClick={() => navigate(`/fincas/${f.id}`)}>
+                    <div className="card-body">
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <h6 className="fw-bold mb-0">{f.nombre}</h6>
+                        {f.isPending ? (
+                          <span className="badge bg-warning text-dark small"><i className="bi bi-clock me-1"></i>Pendiente</span>
+                        ) : (
+                          <span className="badge bg-success bg-opacity-10 text-success small">Activa</span>
+                        )}
+                      </div>
+                      <div className="d-flex flex-wrap gap-3 text-muted small mb-2">
+                        <span><i className="bi bi-rulers me-1"></i>{f.areaTotal} {f.unidadArea || 'ha'}</span>
+                        <span><i className="bi bi-geo-alt me-1"></i>{f.municipio}</span>
+                        <span><i className="bi bi-grid me-1"></i>{f.cantidadParcelas || 0} parcelas</span>
+                        {f.latitud && f.longitud && (
+                          <a href={`https://www.google.com/maps/search/?api=1&query=${f.latitud},${f.longitud}`}
+                            target="_blank" rel="noreferrer" className="text-primary text-decoration-none"
+                            onClick={(e) => e.stopPropagation()}>
+                            <i className="bi bi-map me-1"></i>Ver Mapa
+                          </a>
+                        )}
+                      </div>
+                      {f.descripcion && <p className="text-muted small mb-0">{f.descripcion.substring(0, 80)}</p>}
                     </div>
-                    <div className="d-flex flex-wrap gap-3 text-muted small mb-2">
-                      <span><i className="bi bi-rulers me-1"></i>{f.areaTotal} {f.unidadArea || 'ha'}</span>
-                      <span><i className="bi bi-geo-alt me-1"></i>{f.municipio}</span>
-                      <span><i className="bi bi-grid me-1"></i>{f.cantidadParcelas || 0} parcelas</span>
-                      {f.latitud && f.longitud && (
-                        <a href={`https://www.google.com/maps/search/?api=1&query=${f.latitud},${f.longitud}`} 
-                           target="_blank" rel="noreferrer" className="text-primary text-decoration-none"
-                           onClick={(e) => e.stopPropagation()}>
-                          <i className="bi bi-map me-1"></i>Ver Mapa
-                        </a>
-                      )}
+                    <div className="card-footer bg-transparent border-0 d-flex gap-2 pt-0 pb-3 px-3">
+                      <Link to={f.isPending ? "#" : `/fincas/${f.id}/editar`} className={`btn btn-sm btn-agro-outline flex-grow-1 ${f.isPending ? 'disabled' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); if (f.isPending) e.preventDefault(); } }>
+                        <i className="bi bi-pencil"></i> Editar
+                      </Link>
+                      <Link to={f.isPending ? "#" : `/fincas/${f.id}/parcelas`} className={`btn btn-sm btn-agro-outline flex-grow-1 ${f.isPending ? 'disabled' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); if (f.isPending) e.preventDefault(); } }>
+                        <i className="bi bi-grid-3x3-gap"></i> Parcelas
+                      </Link>
+                      <Link to={f.isPending ? "#" : `/actividades/finca/${f.id}`} className={`btn btn-sm btn-agro-outline flex-grow-1 ${f.isPending ? 'disabled' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); if (f.isPending) e.preventDefault(); } }>
+                        <i className="bi bi-clock-history"></i> Historial
+                      </Link>
+                      <button className="btn btn-sm btn-outline-danger"
+                        disabled={f.isPending}
+                        onClick={(e) => { e.stopPropagation(); setDeleteId(f.id); } }>
+                        <i className="bi bi-trash"></i>
+                      </button>
                     </div>
-                    {f.descripcion && <p className="text-muted small mb-0">{f.descripcion.substring(0, 80)}</p>}
-                  </div>
-                  <div className="card-footer bg-transparent border-0 d-flex gap-2 pt-0 pb-3 px-3">
-                    <Link to={f.isPending ? "#" : `/fincas/${f.id}/editar`} className={`btn btn-sm btn-agro-outline flex-grow-1 ${f.isPending ? 'disabled' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); if(f.isPending) e.preventDefault(); }}>
-                      <i className="bi bi-pencil"></i> Editar
-                    </Link>
-                    <Link to={f.isPending ? "#" : `/fincas/${f.id}/parcelas`} className={`btn btn-sm btn-outline-primary flex-grow-1 ${f.isPending ? 'disabled' : ''}`}
-                      onClick={(e) => { e.stopPropagation(); if (f.isPending) e.preventDefault(); }}>
-                      <i className="bi bi-grid-3x3-gap"></i> Parcelas
-                    </Link>
-                    <button className="btn btn-sm btn-outline-danger flex-grow-1"
-                      disabled={f.isPending}
-                      onClick={(e) => { e.stopPropagation(); setDeleteId(f.id); }}>
-                      <i className="bi bi-trash"></i> Eliminar
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Paginación */}

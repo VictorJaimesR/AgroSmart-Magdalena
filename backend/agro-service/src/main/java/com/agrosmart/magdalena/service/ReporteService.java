@@ -1,5 +1,6 @@
 package com.agrosmart.magdalena.service;
 
+import com.agrosmart.magdalena.domain.entity.Cultivo;
 import com.agrosmart.magdalena.domain.entity.Productor;
 import com.agrosmart.magdalena.domain.entity.Reporte;
 import com.agrosmart.magdalena.domain.enums.TipoReporte;
@@ -7,25 +8,22 @@ import com.agrosmart.magdalena.dto.request.ReporteRequest;
 import com.agrosmart.magdalena.dto.response.ReporteResponse;
 import com.agrosmart.magdalena.exception.BadRequestException;
 import com.agrosmart.magdalena.exception.ResourceNotFoundException;
+import com.agrosmart.magdalena.repository.ActividadRepository;
 import com.agrosmart.magdalena.repository.CultivoRepository;
 import com.agrosmart.magdalena.repository.FincaRepository;
 import com.agrosmart.magdalena.repository.ProductorRepository;
 import com.agrosmart.magdalena.repository.ReporteRepository;
-import com.agrosmart.magdalena.domain.entity.Cultivo;
 import lombok.RequiredArgsConstructor;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-/**
- * Servicio de generación y consulta de reportes de producción.
- * Genera un resumen en formato texto/JSON del estado productivo del productor.
- */
 @Service
 @RequiredArgsConstructor
 public class ReporteService {
@@ -34,6 +32,7 @@ public class ReporteService {
     private final ProductorRepository productorRepository;
     private final FincaRepository fincaRepository;
     private final CultivoRepository cultivoRepository;
+    private final ActividadRepository actividadRepository;
     private final RestTemplate restTemplate;
 
     @Transactional(readOnly = true)
@@ -48,10 +47,6 @@ public class ReporteService {
         return toResponse(reporte);
     }
 
-    /**
-     * Genera un reporte de producción para un productor.
-     * El contenido se genera automáticamente basado en las fincas y cultivos del productor.
-     */
     @Transactional
     public ReporteResponse generar(Long usuarioId, ReporteRequest request) {
         Productor productor = productorRepository.findByUsuarioId(usuarioId)
@@ -64,7 +59,6 @@ public class ReporteService {
             throw new BadRequestException("Tipo de reporte inválido: " + request.getTipo());
         }
 
-        // Generar contenido del reporte
         long totalFincas = fincaRepository.findByProductorUsuarioId(usuarioId, Pageable.unpaged()).getTotalElements();
         String contenido = generarContenidoReporte(productor, tipo, totalFincas);
 
@@ -83,14 +77,14 @@ public class ReporteService {
     }
 
     private String generarContenidoReporte(Productor productor, TipoReporte tipo, long totalFincas) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format("{\"productor\": \"%s\", ", "Agricultor " + productor.getUsuarioId()));
-        sb.append(String.format("\"cedula\": \"%s\", ", productor.getCedula()));
-        sb.append(String.format("\"tipo_reporte\": \"%s\", ", tipo.name()));
-        sb.append(String.format("\"total_fincas\": %d, ", totalFincas));
-        sb.append(String.format("\"asociacion\": \"%s\"}",
-                productor.getAsociacion() != null ? productor.getAsociacion().getNombre() : "Sin asociación"));
-        return sb.toString();
+        return String.format(
+                "{\"productor\": \"Agricultor ID: %d\", \"cedula\": \"%s\", \"tipo_reporte\": \"%s\", \"total_fincas\": %d, \"asociacion\": \"%s\"}",
+                productor.getUsuarioId(),
+                productor.getCedula(),
+                tipo.name(),
+                totalFincas,
+                productor.getAsociacion() != null ? productor.getAsociacion().getNombre() : "Sin asociación"
+        );
     }
 
     private ReporteResponse toResponse(Reporte r) {
@@ -108,59 +102,125 @@ public class ReporteService {
                 .build();
     }
 
+    // ── CSV Producción ────────────────────────────────────────────────────────
+
     @Transactional(readOnly = true)
     public String generarCsvProduccion(Long usuarioId) {
         StringBuilder csv = new StringBuilder();
-        csv.append("Productor,Cultivo,Area_Utilizada,Rendimiento_Estimado,Estado\n");
-        // Simplified query logic for quick export
-        Iterable<Cultivo> cultivos = usuarioId != null 
-            ? cultivoRepository.findByProductorUsuarioId(usuarioId, Pageable.unpaged()) 
-            : cultivoRepository.findAll();
+        csv.append("Productor,Cultivo,Variedad,Area_Utilizada_ha,Rendimiento_Esperado_ton_ha,Estado,Fecha_Siembra,Fecha_Cosecha_Estimada\n");
+
+        Iterable<Cultivo> cultivos = usuarioId != null
+                ? cultivoRepository.findByProductorUsuarioId(usuarioId, Pageable.unpaged())
+                : cultivoRepository.findAll();
+
         for (Cultivo c : cultivos) {
-            String prodNombre = "Agricultor ID: " + c.getParcela().getFinca().getProductor().getUsuarioId();
-            csv.append(String.format("%s,%s,%.2f,%.2f,%s\n", 
-                prodNombre, c.getNombre(), c.getAreaUtilizada(), c.getRendimientoEsperado(), c.getEstado().name()
-            ));
+            String productor = "Agricultor ID: " + c.getParcela().getFinca().getProductor().getUsuarioId();
+            String variedad  = c.getVariedad() != null ? c.getVariedad() : "N/A";
+            String area      = c.getAreaUtilizada() != null
+                    ? String.format(Locale.US, "%.2f", c.getAreaUtilizada()) : "0.00";
+            String rendimiento = c.getRendimientoEsperado() != null
+                    ? String.format(Locale.US, "%.2f", c.getRendimientoEsperado()) : "N/A";
+            String fechaSiembra = c.getFechaSiembra() != null ? c.getFechaSiembra().toString() : "N/A";
+            String fechaCosecha = c.getFechaCosechaEstimada() != null ? c.getFechaCosechaEstimada().toString() : "N/A";
+
+            csv.append(String.format("%s,%s,%s,%s,%s,%s,%s,%s\n",
+                    productor, c.getNombre(), variedad, area,
+                    rendimiento, c.getEstado().name(), fechaSiembra, fechaCosecha));
         }
         return csv.toString();
     }
 
+    // ── CSV Inventario de insumos (basado en actividades) ─────────────────────
+
     @Transactional(readOnly = true)
-    public String generarCsvInventarioCultivos(Long fincaId) {
+    public String generarCsvInventarioCultivos(Long usuarioId) {
         StringBuilder csv = new StringBuilder();
-        csv.append("Finca,Parcela,Cultivo,Variedad,Fecha_Siembra,Estado\n");
-        Iterable<Cultivo> cultivos = fincaId != null 
-            ? cultivoRepository.findByFincaId(fincaId, Pageable.unpaged()) 
-            : cultivoRepository.findAll();
-        for (Cultivo c : cultivos) {
-            csv.append(String.format("%s,%s,%s,%s,%s,%s\n", 
-                c.getParcela().getFinca().getNombre(),
-                c.getParcela().getNombre(),
-                c.getNombre(),
-                c.getVariedad(),
-                c.getFechaSiembra() != null ? c.getFechaSiembra().toString() : "N/A",
-                c.getEstado().name()
-            ));
+
+        // ── Sección 1: Detalle de actividades ──
+        csv.append("=== DETALLE DE ACTIVIDADES AGRICOLAS ===\n");
+        csv.append("Finca,Cultivo,Tipo_Actividad,Producto_Insumo,Cantidad,Unidad,Fecha,Registrado_Por\n");
+
+        List<Object[]> actividades = actividadRepository.findByProductorUsuarioId(usuarioId)
+                .stream()
+                .map(a -> new Object[]{
+                        a.getFinca().getNombre(),
+                        a.getCultivo().getNombre(),
+                        a.getTipoActividad().name(),
+                        a.getProducto() != null ? a.getProducto() : "N/A",
+                        a.getCantidad() != null ? String.format(Locale.US, "%.2f", a.getCantidad()) : "N/A",
+                        a.getUnidad() != null ? a.getUnidad() : "N/A",
+                        a.getFechaActividad() != null ? a.getFechaActividad().toLocalDate().toString() : "N/A",
+                        a.getRegistradoPorNombre()
+                }).toList();
+
+        for (Object[] row : actividades) {
+            csv.append(String.format("%s,%s,%s,\"%s\",%s,%s,%s,%s\n",
+                    row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]));
         }
+
+        // ── Sección 2: Resumen de insumos con totales ──
+        csv.append("\n=== RESUMEN DE INSUMOS UTILIZADOS ===\n");
+        csv.append("Tipo_Actividad,Finca,Cultivo,Producto_Insumo,Unidad,Total_Utilizado,Nro_Aplicaciones\n");
+
+        List<Object[]> resumenInsumos = actividadRepository.resumenInsumosPorProductor(usuarioId);
+        for (Object[] row : resumenInsumos) {
+            // row: tipoActividad, producto, unidad, SUM(cantidad), COUNT, finca, cultivo
+            String total = row[3] != null ? String.format(Locale.US, "%.2f", ((Number) row[3]).doubleValue()) : "0.00";
+            csv.append(String.format("%s,%s,%s,\"%s\",%s,%s,%s\n",
+                    row[0], row[5], row[6],
+                    row[1] != null ? row[1] : "N/A",
+                    row[2] != null ? row[2] : "N/A",
+                    total, row[4]));
+        }
+
+        // ── Sección 3: Resumen de actividades sin insumo (riego, poda, etc.) ──
+        csv.append("\n=== RESUMEN DE ACTIVIDADES POR TIPO ===\n");
+        csv.append("Tipo_Actividad,Finca,Cultivo,Nro_Veces,Total_Cantidad,Unidad\n");
+
+        List<Object[]> resumenActividades = actividadRepository.resumenActividadesPorProductor(usuarioId);
+        for (Object[] row : resumenActividades) {
+            // row: tipoActividad, finca, cultivo, COUNT, SUM(cantidad), unidad
+            String total = row[4] != null ? String.format(Locale.US, "%.2f", ((Number) row[4]).doubleValue()) : "0.00";
+            csv.append(String.format("%s,%s,%s,%s,%s,%s\n",
+                    row[0], row[1], row[2], row[3], total,
+                    row[5] != null ? row[5] : "N/A"));
+        }
+
         return csv.toString();
     }
+
+    // ── CSV Alertas ───────────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
     public String generarCsvAlertas() {
         StringBuilder csv = new StringBuilder();
-        csv.append("Tipo_Alerta,Titulo,Fecha_Emision,Estado,Activa\n");
-        Map<String, Object> response = restTemplate.getForObject("http://localhost:8083/api/alertas", Map.class);
-        if (response != null && response.get("datos") instanceof Map<?, ?> datos && datos.get("content") instanceof List<?> alertas) {
-            for (Object item : alertas) {
-                if (item instanceof Map<?, ?> alerta) {
-                    csv.append(String.format("%s,%s,%s,%s,%s\n",
-                            safe(alerta.get("tipo")),
-                            safe(alerta.get("titulo")),
-                            safe(alerta.get("fechaEmision")),
-                            safe(alerta.get("estadoAlerta")),
-                            safe(alerta.get("activa"))));
+        csv.append("Tipo_Alerta,Titulo,Fecha_Emision,Estado,Activa,Municipios_Afectados\n");
+
+        try {
+            Map<String, Object> response = restTemplate.getForObject(
+                    "http://localhost:8083/api/alertas?size=100", Map.class);
+
+            if (response != null && response.get("datos") instanceof Map<?, ?> datos
+                    && datos.get("content") instanceof List<?> alertas) {
+                for (Object item : alertas) {
+                    if (item instanceof Map<?, ?> alerta) {
+                        String municipios = "";
+                        if (alerta.get("municipiosAfectados") instanceof List<?> lista) {
+                            municipios = "\"" + String.join(", ", lista.stream()
+                                    .map(Object::toString).toList()) + "\"";
+                        }
+                        csv.append(String.format("%s,\"%s\",%s,%s,%s,%s\n",
+                                safe(alerta.get("tipo")),
+                                safe(alerta.get("titulo")).replace("\"", "\"\""),
+                                safe(alerta.get("fechaEmision")),
+                                safe(alerta.get("estadoAlerta")),
+                                safe(alerta.get("activa")),
+                                municipios));
+                    }
                 }
             }
+        } catch (Exception e) {
+            csv.append("Error al obtener alertas: ").append(e.getMessage()).append("\n");
         }
         return csv.toString();
     }

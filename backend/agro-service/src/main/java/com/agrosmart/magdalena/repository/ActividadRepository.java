@@ -14,20 +14,43 @@ import java.util.List;
 @Repository
 public interface ActividadRepository extends JpaRepository<ActividadAgricola, Long> {
 
-    /** Historial completo de una finca, ordenado por fecha de actividad descendente */
     Page<ActividadAgricola> findByFincaIdOrderByFechaActividadDesc(Long fincaId, Pageable pageable);
 
-    /** Historial de un cultivo específico */
     Page<ActividadAgricola> findByCultivoIdOrderByFechaActividadDesc(Long cultivoId, Pageable pageable);
 
-    /** Historial de una finca filtrado por tipo de actividad */
     Page<ActividadAgricola> findByFincaIdAndTipoActividadOrderByFechaActividadDesc(
             Long fincaId, TipoActividad tipoActividad, Pageable pageable);
 
-    /** Conteo de actividades por tipo para una finca (resumen/dashboard) */
     @Query("SELECT a.tipoActividad, COUNT(a) FROM ActividadAgricola a WHERE a.finca.id = :fincaId GROUP BY a.tipoActividad")
     List<Object[]> contarPorTipoEnFinca(@Param("fincaId") Long fincaId);
 
-    /** Últimas actividades registradas por un usuario (agricultor o técnico) */
     Page<ActividadAgricola> findByRegistradoPorIdOrderByFechaActividadDesc(Long registradoPorId, Pageable pageable);
+
+    /** Todas las actividades de las fincas de un productor */
+    @Query("SELECT a FROM ActividadAgricola a WHERE a.finca.productor.usuarioId = :usuarioId ORDER BY a.fechaActividad DESC")
+    List<ActividadAgricola> findByProductorUsuarioId(@Param("usuarioId") Long usuarioId);
+
+    /** Resumen de insumos: tipo, producto, unidad y total consumido por productor */
+    @Query("""
+        SELECT a.tipoActividad, a.producto, a.unidad, SUM(a.cantidad), COUNT(a),
+               a.finca.nombre, a.cultivo.nombre
+        FROM ActividadAgricola a
+        WHERE a.finca.productor.usuarioId = :usuarioId
+          AND a.producto IS NOT NULL
+          AND a.cantidad IS NOT NULL
+        GROUP BY a.tipoActividad, a.producto, a.unidad, a.finca.nombre, a.cultivo.nombre
+        ORDER BY a.tipoActividad, a.producto
+        """)
+    List<Object[]> resumenInsumosPorProductor(@Param("usuarioId") Long usuarioId);
+
+    /** Resumen de todas las actividades por tipo (incluso sin producto) por productor */
+    @Query("""
+        SELECT a.tipoActividad, a.finca.nombre, a.cultivo.nombre,
+               COUNT(a), SUM(CASE WHEN a.cantidad IS NOT NULL THEN a.cantidad ELSE 0 END), a.unidad
+        FROM ActividadAgricola a
+        WHERE a.finca.productor.usuarioId = :usuarioId
+        GROUP BY a.tipoActividad, a.finca.nombre, a.cultivo.nombre, a.unidad
+        ORDER BY a.finca.nombre, a.tipoActividad
+        """)
+    List<Object[]> resumenActividadesPorProductor(@Param("usuarioId") Long usuarioId);
 }

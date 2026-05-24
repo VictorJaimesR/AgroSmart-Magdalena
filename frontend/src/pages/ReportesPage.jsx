@@ -25,7 +25,7 @@ export default function ReportesPage() {
     try {
       await reporteService.generar(user?.usuarioId || 1, { tipo, titulo: `Reporte de ${tipo.toLowerCase()}` });
       loadReportes();
-    } catch {}
+    } catch { }
     finally { setGenerating(false); }
   };
 
@@ -42,46 +42,46 @@ export default function ReportesPage() {
           <div className="row g-2">
             <div className="col-12 col-md-4">
               <button className="btn btn-outline-success w-100 py-3 d-flex flex-column align-items-center"
-               onClick={async () => {
-                   const res = await reporteService.exportarProduccionCsv(user?.usuarioId || 1);
-                   const url = window.URL.createObjectURL(new Blob([res.data]));
-                   const link = document.createElement('a');
-                   link.href = url;
-                   link.setAttribute('download', 'produccion.csv');
-                   document.body.appendChild(link);
-                   link.click();
+                onClick={async () => {
+                  const res = await reporteService.exportarProduccionCsv(user?.usuarioId || 1);
+                  const url = window.URL.createObjectURL(new Blob([res.data]));
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.setAttribute('download', 'produccion.csv');
+                  document.body.appendChild(link);
+                  link.click();
                 }} disabled={generating}>
                 <i className="bi bi-graph-up fs-4 mb-1"></i>
                 <small>Producción (CSV)</small>
-              </button>
-            </div>
-            
-            <div className="col-12 col-md-4">
-              <button className="btn btn-outline-success w-100 py-3 d-flex flex-column align-items-center"
-                onClick={async () => {
-                   const res = await reporteService.exportarInventarioCsv();
-                   const url = window.URL.createObjectURL(new Blob([res.data]));
-                   const link = document.createElement('a');
-                   link.href = url;
-                   link.setAttribute('download', 'inventario_cultivos.csv');
-                   document.body.appendChild(link);
-                   link.click();
-                }} disabled={generating}>
-                <i className="bi bi-list-nested fs-4 mb-1"></i>
-                <small>Inventario Cultivos (CSV)</small>
               </button>
             </div>
 
             <div className="col-12 col-md-4">
               <button className="btn btn-outline-success w-100 py-3 d-flex flex-column align-items-center"
                 onClick={async () => {
-                   const res = await reporteService.exportarAlertasCsv();
-                   const url = window.URL.createObjectURL(new Blob([res.data]));
-                   const link = document.createElement('a');
-                   link.href = url;
-                   link.setAttribute('download', 'historial_alertas.csv');
-                   document.body.appendChild(link);
-                   link.click();
+                  const res = await reporteService.exportarInventarioCsv(user?.productorId);
+                  const url = window.URL.createObjectURL(new Blob([res.data]));
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.setAttribute('download', 'inventario.csv');
+                  document.body.appendChild(link);
+                  link.click();
+                }} disabled={generating}>
+                <i className="bi bi-list-nested fs-4 mb-1"></i>
+                <small>Inventario (CSV)</small>
+              </button>
+            </div>
+
+            <div className="col-12 col-md-4">
+              <button className="btn btn-outline-success w-100 py-3 d-flex flex-column align-items-center"
+                onClick={async () => {
+                  const res = await reporteService.exportarAlertasCsv();
+                  const url = window.URL.createObjectURL(new Blob([res.data]));
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.setAttribute('download', 'historial_alertas.csv');
+                  document.body.appendChild(link);
+                  link.click();
                 }} disabled={generating}>
                 <i className="bi bi-exclamation-triangle fs-4 mb-1"></i>
                 <small>Historial Alertas (CSV)</small>
